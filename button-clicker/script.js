@@ -255,3 +255,55 @@ hardcoreModeBtn.addEventListener("pointerdown", () => selectMode("hardcore"));
 incrementBtn.addEventListener("pointerdown", handleIncrement);
 rebirthBtn.addEventListener("pointerdown", handleRebirth);
 restartBtn.addEventListener("pointerdown", handleRestart);
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+// Put your Firebase User UID here so ONLY YOU see this menu
+const DEVELOPER_UID = "cmHKgvpI4AeoG8jxWTRdfBLyDN33"; 
+
+const devToggleBtn = document.getElementById("dev-toggle-btn");
+const devOverlay = document.getElementById("dev-overlay");
+const devCloseBtn = document.getElementById("dev-close-btn");
+const devInstantWinBtn = document.getElementById("dev-instant-win-btn");
+const devResetPointsBtn = document.getElementById("dev-reset-points-btn");
+const devAddPointsBtn = document.getElementById("dev-add-points-btn");
+
+// Show dev button only for developer UID
+onAuthStateChanged(auth, (user) => {
+  if (user && user.uid === DEVELOPER_UID) {
+    devToggleBtn.classList.remove("hidden");
+  }
+});
+
+devToggleBtn.addEventListener("click", () => devOverlay.classList.remove("hidden"));
+devCloseBtn.addEventListener("click", () => devOverlay.classList.add("hidden"));
+
+// 1. Instant Win Cheat
+devInstantWinBtn.addEventListener("click", () => {
+  count = 100;
+  rebirths = 5;
+  countEl.textContent = count;
+  updateProgressBar();
+  triggerGameOver();
+  devOverlay.classList.add("hidden");
+});
+
+// 2. Reset Completion Flags (to test getting points again)
+devResetPointsBtn.addEventListener("click", async () => {
+  if (!auth.currentUser) return;
+  const userRef = doc(db, "users", auth.currentUser.uid);
+  await setDoc(userRef, {
+    buttonClickerNormal: false,
+    buttonClickerHardcore: false
+  }, { merge: true });
+  alert("Reset completed status for testing!");
+});
+
+// 3. Add 100 Points directly
+devAddPointsBtn.addEventListener("click", async () => {
+  if (!auth.currentUser) return;
+  const userRef = doc(db, "users", auth.currentUser.uid);
+  await setDoc(userRef, {
+    points: increment(100)
+  }, { merge: true });
+  alert("Added +100 points to your account!");
+});
