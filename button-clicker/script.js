@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getAuth } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-import { getFirestore, doc, getDoc, setDoc, increment } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { getFirestore, doc, setDoc, increment } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyC5c-np0wNIMkcowH4Rr1i5r3B2-qGY1e4",
@@ -73,17 +73,9 @@ function getIncrementValue() {
 function animateButton(btn) {
   btn.animate([
     { transform: "scale(1)", filter: "brightness(1)" },
-    { transform: "scale(0.93) translateY(2px)", filter: "brightness(1.4)" },
+    { transform: "scale(0.95)", filter: "brightness(1.2)" },
     { transform: "scale(1)", filter: "brightness(1)" }
   ], { duration: 100, easing: "ease-out" });
-}
-
-function animateRebirthButton() {
-  rebirthBtn.animate([
-    { transform: "translateY(-50%) scale(1)", filter: "brightness(1)" },
-    { transform: "translateY(calc(-50% + 2px)) scale(0.93)", filter: "brightness(1.4)" },
-    { transform: "translateY(-50%) scale(1)", filter: "brightness(1)" }
-  ], { duration: 140, easing: "cubic-bezier(.34,1.25,.64,1)" });
 }
 
 function createParticle(x, y, value) {
@@ -120,7 +112,6 @@ function handleIncrement(e) {
   if (!hasClickedOnce) {
     hasClickedOnce = true;
     progressContainer.classList.remove("hide-progress");
-    progressContainer.classList.add("show-progress");
     rebirthBtn.classList.remove("show-rebirth");
   }
 
@@ -147,7 +138,7 @@ function handleIncrement(e) {
   mainScreen.style.backgroundColor = tempColors[cycleIndex];
 
   if (count >= 100) {
-    progressContainer.classList.remove("show-progress");
+    // Fade out progress bar, fade in rebirth button
     progressContainer.classList.add("hide-progress");
 
     const nextInc = gameMode === "normal" 
@@ -163,7 +154,7 @@ function handleRebirth(e) {
   if (e) e.preventDefault();
   if (isGameOver) return;
 
-  animateRebirthButton();
+  animateButton(rebirthBtn);
 
   if (count >= 100) {
     rebirths++;
@@ -172,50 +163,43 @@ function handleRebirth(e) {
 
     progressFill.style.width = "0%";
     progressText.textContent = "0%";
-
     hasClickedOnce = false;
 
-    progressContainer.classList.remove("show-progress", "hide-progress");
     rebirthBtn.classList.remove("show-rebirth");
+    progressContainer.classList.add("hide-progress");
 
     mainScreen.style.backgroundColor = tempColors[0];
   }
 }
 
 async function handleRewardAndSave() {
+  const isHc = gameMode === "hardcore";
+  const rewardLabel = isHc ? "+1 HC Point!" : "+5 Points!";
+
   if (!auth.currentUser) {
-    earnedPointsEl.textContent = "+0 Points (Not Logged In)";
+    earnedPointsEl.textContent = `${rewardLabel} (Guest)`;
     return;
   }
 
-  const pointsForMode = gameMode === "hardcore" ? 10 : 5;
   const userRef = doc(db, "users", auth.currentUser.uid);
-  const completionKey = gameMode === "hardcore" ? "buttonClickerHardcore" : "buttonClickerNormal";
 
   try {
-    const snap = await getDoc(userRef);
-    const userData = snap.exists() ? snap.data() : {};
-
-    if (!userData[completionKey]) {
-      await setDoc(userRef, {
-        points: increment(pointsForMode),
-        [completionKey]: true
-      }, { merge: true });
-
-      earnedPointsEl.textContent = `+${pointsForMode} Points!`;
+    if (isHc) {
+      await setDoc(userRef, { hcPoints: increment(1) }, { merge: true });
     } else {
-      earnedPointsEl.textContent = "+0 Points (Already Earned)";
+      await setDoc(userRef, { points: increment(5) }, { merge: true });
     }
+    earnedPointsEl.textContent = rewardLabel;
   } catch (err) {
-    console.error("Error saving points:", err);
-    earnedPointsEl.textContent = "Error saving reward";
+    console.error("Error saving reward:", err);
+    earnedPointsEl.textContent = rewardLabel;
   }
 }
 
 function triggerGameOver() {
   isGameOver = true;
   summaryModeEl.textContent = gameMode === "hardcore" ? "Hardcore 🔥" : "Normal";
-  earnedPointsEl.textContent = "Calculating...";
+  earnedPointsEl.textContent = "Saving...";
   
   gameOverOverlay.classList.add("show-modal");
   handleRewardAndSave();
@@ -231,7 +215,7 @@ function resetGame() {
   progressFill.style.width = "0%";
   progressText.textContent = "0%";
 
-  progressContainer.classList.remove("show-progress", "hide-progress");
+  progressContainer.classList.add("hide-progress");
   rebirthBtn.classList.remove("show-rebirth");
 
   mainScreen.style.backgroundColor = tempColors[0];
