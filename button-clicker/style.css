@@ -67,7 +67,111 @@ body {
   transition: background-color 0.8s ease;
 }
 
+/* Modals */
+.modal-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(8px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+  z-index: 100;
+}
+
+.modal-overlay.show-modal {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.modal-box {
+  width: 340px;
+  padding: 30px;
+  background: #18181b;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  transform: scale(0.9);
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.modal-overlay.show-modal .modal-box {
+  transform: scale(1);
+}
+
+.mode-subtitle {
+  font-size: 0.85rem;
+  color: #a1a1aa;
+  margin-bottom: 8px;
+}
+
+.mode-options {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+.mode-select-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 14px;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+}
+
+.normal-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.15);
+  color: #fff;
+}
+
+.normal-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  transform: translateY(-2px);
+}
+
+.hardcore-btn {
+  background: rgba(239, 68, 68, 0.12);
+  border-color: rgba(239, 68, 68, 0.4);
+  color: #fca5a5;
+}
+
+.hardcore-btn:hover {
+  background: rgba(239, 68, 68, 0.25);
+  border-color: rgba(239, 68, 68, 0.7);
+  transform: translateY(-2px);
+}
+
+.mode-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.mode-desc {
+  font-size: 0.75rem;
+  opacity: 0.8;
+  margin-top: 4px;
+}
+
+/* Game Card */
 #game-card {
+  position: relative;
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 24px;
@@ -84,6 +188,24 @@ body {
 #game-card.fade-in {
   opacity: 1;
   transform: scale(1);
+}
+
+.badge {
+  position: absolute;
+  top: 14px;
+  right: 18px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #a1a1aa;
+}
+
+.badge.hardcore {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.4);
 }
 
 #game-card h1 {
@@ -179,7 +301,7 @@ body {
   width: 260px;
   margin: 0;
   padding: 10px 20px;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   font-weight: 700;
   background: rgba(255, 215, 0, 0.15);
   border: 1px solid rgba(255, 215, 0, 0.4);
@@ -207,56 +329,12 @@ body {
 .particle {
   position: absolute;
   font-weight: 800;
-  font-size: 1.1rem;
+  font-size: 1rem;
   color: #fff;
   pointer-events: none;
   z-index: 15;
   text-shadow: 0 2px 8px rgba(0,0,0,0.5);
-}
-
-#game-over-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  background: rgba(0, 0, 0, 0.8);
-  backdrop-filter: blur(6px);
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.4s ease;
-  z-index: 30;
-}
-
-#game-over-overlay.show {
-  opacity: 1;
-  pointer-events: auto;
-}
-
-#game-over-box {
-  width: 320px;
-  padding: 30px;
-  background: #18181b;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 20px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-  transform: scale(0.9);
-  opacity: 0;
-  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-
-#game-over-overlay.show #game-over-box {
-  transform: scale(1);
-  opacity: 1;
+  white-space: nowrap;
 }
 
 #game-over-title {
@@ -266,7 +344,7 @@ body {
 }
 
 #game-over-stats p {
-  font-size: 1rem;
+  font-size: 0.95rem;
   color: #a1a1aa;
 }
 
@@ -275,8 +353,14 @@ body {
   font-weight: 700;
 }
 
+.completion-status {
+  color: #4ade80 !important;
+  font-weight: 700;
+  margin-top: 4px;
+}
+
 #restart-btn {
-  width: 320px;
+  width: 340px;
   margin-top: 16px;
   padding: 12px;
   font-size: 1rem;
@@ -286,14 +370,7 @@ body {
   border: none;
   border-radius: 12px;
   cursor: pointer;
-  opacity: 0;
-  transition: opacity 0.4s ease;
-  pointer-events: none;
-}
-
-#restart-btn.show-btn {
-  opacity: 1;
-  pointer-events: auto;
+  transition: opacity 0.2s ease;
 }
 
 #restart-btn:hover {
