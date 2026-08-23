@@ -82,7 +82,7 @@ body {
   backdrop-filter: blur(8px);
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.4s ease;
+  transition: opacity 0.3s ease;
   z-index: 100;
 }
 
@@ -104,7 +104,7 @@ body {
   align-items: center;
   gap: 12px;
   transform: scale(0.9);
-  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .modal-overlay.show-modal .modal-box {
@@ -169,7 +169,7 @@ body {
   margin-top: 4px;
 }
 
-/* Card */
+/* Main Game Card */
 #game-card {
   position: relative;
   background: rgba(255, 255, 255, 0.03);
