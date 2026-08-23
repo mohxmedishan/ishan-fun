@@ -19,14 +19,15 @@
 
       <div class="action-area">
         <button id="increment-btn" class="game-btn">CLICK ME</button>
-        <button id="rebirth-btn" class="rebirth-btn">Rebirth to 1 (2 per click)</button>
-      </div>
-
-      <div id="progress-container" class="progress-container hide-progress">
-        <div class="progress-bar">
-          <div id="progress-fill" class="progress-fill"></div>
+        
+        <div id="progress-container" class="progress-container hide-progress">
+          <div class="progress-bar">
+            <div id="progress-fill" class="progress-fill"></div>
+          </div>
+          <span id="progress-text">0%</span>
         </div>
-        <span id="progress-text">0%</span>
+
+        <button id="rebirth-btn" class="rebirth-btn">Rebirth to 1 (2 per click)</button>
       </div>
 
     </div>
@@ -36,7 +37,7 @@
   <div id="mode-overlay" class="modal-overlay show-modal">
     <div class="modal-box">
       <h2>Select Mode</h2>
-      <p>Choose your difficulty to begin:</p>
+      <p class="modal-desc">Choose your difficulty to begin:</p>
 
       <div class="mode-btns">
         <button id="normal-mode-btn" class="mode-choice-btn">
@@ -46,7 +47,7 @@
 
         <button id="hardcore-mode-btn" class="mode-choice-btn hardcore">
           <strong>Hardcore Mode 🔥</strong>
-          <span>Earn +10 Points</span>
+          <span>Earn +1 HC Point</span>
         </button>
       </div>
     </div>
@@ -56,13 +57,16 @@
   <div id="game-over-overlay" class="modal-overlay">
     <div class="modal-box">
       <h2>🎉 Game Complete!</h2>
-      <p>You beat <span id="summary-mode">Normal</span> mode!</p>
+      <p class="modal-desc">You beat <span id="summary-mode">Normal</span> mode!</p>
 
       <div class="reward-box">
         <span id="earned-points">+5 Points!</span>
       </div>
 
-      <button id="restart-btn" class="restart-btn">Play Again</button>
+      <div class="game-over-actions">
+        <button id="restart-btn" class="restart-btn">Play Again</button>
+        <a href="../index.html" class="home-btn">Back to Home</a>
+      </div>
     </div>
   </div>
 
