@@ -24,7 +24,7 @@ body, html {
 
 .game-card {
   background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   backdrop-filter: blur(12px);
   padding: 40px;
   border-radius: 28px;
@@ -52,16 +52,16 @@ body, html {
   font-size: 0.75rem;
   font-weight: 800;
   padding: 4px 10px;
-  background: rgba(255, 255, 255, 0.1);
-  color: #a1a1aa;
+  background: rgba(255, 255, 255, 0.12);
+  color: #f4f4f5;
   border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
 .mode-badge.hardcore {
-  background: rgba(255, 94, 0, 0.15);
-  color: #ff5e00;
-  border-color: rgba(255, 94, 0, 0.3);
+  background: rgba(255, 94, 0, 0.2);
+  color: #ff7d33;
+  border-color: rgba(255, 94, 0, 0.4);
 }
 
 .counter-container {
@@ -71,14 +71,15 @@ body, html {
 #count {
   font-size: 4rem;
   font-weight: 900;
-  color: #fff;
+  color: #ffffff;
 }
 
 .action-area {
-  position: relative;
   width: 100%;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
 }
 
 .game-btn {
@@ -92,57 +93,44 @@ body, html {
   color: #000000;
   cursor: pointer;
   box-shadow: 0 8px 24px rgba(255, 255, 255, 0.15);
+  transition: transform 0.1s ease, background-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.rebirth-btn {
-  position: absolute;
-  top: 50%;
-  left: 0;
-  width: 100%;
-  padding: 18px;
-  font-size: 0.95rem;
-  font-weight: 800;
-  border: none;
-  border-radius: 16px;
-  background: #ff5e00;
-  color: #ffffff;
-  cursor: pointer;
-  transform: translateY(-50%) scale(0.9);
-  opacity: 0;
-  pointer-events: none;
-  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
-  box-shadow: 0 8px 24px rgba(255, 94, 0, 0.3);
+.game-btn:hover {
+  background: #f4f4f5;
+  box-shadow: 0 10px 28px rgba(255, 255, 255, 0.25);
+  transform: translateY(-2px);
 }
 
-.rebirth-btn.show-rebirth {
-  transform: translateY(-50%) scale(1);
-  opacity: 1;
-  pointer-events: auto;
+.game-btn:active {
+  transform: translateY(1px) scale(0.98);
 }
 
+/* Progress bar smooth collapse */
 .progress-container {
   width: 100%;
-  margin-top: 24px;
   display: flex;
   align-items: center;
   gap: 12px;
-  transition: opacity 0.2s ease;
+  max-height: 40px;
+  opacity: 1;
+  transform: scale(1);
+  transition: opacity 0.25s ease, transform 0.25s ease, max-height 0.3s ease, margin 0.3s ease;
 }
 
 .progress-container.hide-progress {
   opacity: 0;
+  transform: scale(0.9);
+  max-height: 0;
+  margin: 0;
   pointer-events: none;
-}
-
-.progress-container.show-progress {
-  opacity: 1;
-  pointer-events: auto;
+  overflow: hidden;
 }
 
 .progress-bar {
   flex-grow: 1;
   height: 8px;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.15);
   border-radius: 10px;
   overflow: hidden;
 }
@@ -155,10 +143,47 @@ body, html {
 }
 
 #progress-text {
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   font-weight: 700;
-  color: #a1a1aa;
-  width: 35px;
+  color: #e4e4e7;
+  width: 40px;
+  text-align: right;
+}
+
+/* Rebirth button transition */
+.rebirth-btn {
+  width: 100%;
+  padding: 18px;
+  font-size: 0.95rem;
+  font-weight: 800;
+  border: none;
+  border-radius: 16px;
+  background: #ff5e00;
+  color: #ffffff;
+  cursor: pointer;
+  max-height: 0;
+  opacity: 0;
+  transform: scale(0.9);
+  pointer-events: none;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(255, 94, 0, 0.3);
+  transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), max-height 0.3s ease, background-color 0.2s ease;
+}
+
+.rebirth-btn.show-rebirth {
+  max-height: 80px;
+  opacity: 1;
+  transform: scale(1);
+  pointer-events: auto;
+}
+
+.rebirth-btn:hover {
+  background: #ff731a;
+  box-shadow: 0 10px 28px rgba(255, 94, 0, 0.45);
+}
+
+.rebirth-btn:active {
+  transform: scale(0.97);
 }
 
 .particle {
@@ -175,7 +200,7 @@ body, html {
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.8);
+  background: rgba(0, 0, 0, 0.85);
   backdrop-filter: blur(8px);
   display: flex;
   justify-content: center;
@@ -193,22 +218,23 @@ body, html {
 
 .modal-box {
   background: #18181b;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   padding: 32px;
   border-radius: 24px;
   width: 90%;
-  max-width: 360px;
+  max-width: 380px;
   text-align: center;
 }
 
 .modal-box h2 {
   font-size: 1.6rem;
+  color: #ffffff;
   margin-bottom: 8px;
 }
 
-.modal-box p {
-  color: #71717a;
-  font-size: 0.9rem;
+.modal-desc {
+  color: #d4d4d8 !important;
+  font-size: 0.95rem;
   margin-bottom: 24px;
 }
 
@@ -224,50 +250,94 @@ body, html {
   align-items: center;
   gap: 4px;
   padding: 16px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 14px;
-  color: #fff;
+  color: #ffffff;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: background 0.2s ease, transform 0.1s ease;
 }
 
 .mode-choice-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateY(-2px);
+}
+
+.mode-choice-btn:active {
+  transform: translateY(0);
 }
 
 .mode-choice-btn.hardcore {
-  border-color: rgba(255, 94, 0, 0.3);
-  background: rgba(255, 94, 0, 0.05);
+  border-color: rgba(255, 94, 0, 0.4);
+  background: rgba(255, 94, 0, 0.1);
 }
 
 .mode-choice-btn.hardcore:hover {
-  background: rgba(255, 94, 0, 0.15);
+  background: rgba(255, 94, 0, 0.2);
 }
 
 .mode-choice-btn span {
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   color: #a1a1aa;
 }
 
 .reward-box {
-  background: rgba(74, 222, 128, 0.1);
-  border: 1px solid rgba(74, 222, 128, 0.3);
+  background: rgba(74, 222, 128, 0.12);
+  border: 1px solid rgba(74, 222, 128, 0.4);
   color: #4ade80;
   padding: 16px;
   border-radius: 12px;
-  font-size: 1.2rem;
+  font-size: 1.3rem;
   font-weight: 800;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
+}
+
+.game-over-actions {
+  display: flex;
+  gap: 12px;
 }
 
 .restart-btn {
-  width: 100%;
+  flex: 1;
   padding: 14px;
-  background: #fff;
-  color: #000;
+  background: #ffffff;
+  color: #000000;
   border: none;
   border-radius: 12px;
   font-weight: 800;
   cursor: pointer;
+  transition: background 0.2s ease, transform 0.1s ease;
+}
+
+.restart-btn:hover {
+  background: #e4e4e7;
+  transform: translateY(-1px);
+}
+
+.restart-btn:active {
+  transform: translateY(0);
+}
+
+.home-btn {
+  flex: 1;
+  padding: 14px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  font-weight: 800;
+  text-decoration: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: background 0.2s ease, transform 0.1s ease;
+}
+
+.home-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+}
+
+.home-btn:active {
+  transform: translateY(0);
 }
