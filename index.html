@@ -25,7 +25,7 @@
   <main class="main-container">
     <header class="hero">
       <h1>Play & Compete</h1>
-      <p>Log in to save your high scores to the global leaderboard.</p>
+      <p>Log in to save your points to the global leaderboard.</p>
     </header>
 
     <div class="games-grid">
@@ -33,7 +33,10 @@
         <div class="card-badge">HOT</div>
         <h2>Button Clicker</h2>
         <p>Click your way to 5 Rebirths and trigger the finish sequence!</p>
-        <a href="./button-clicker/index.html" class="play-link">Play Game</a>
+        <div class="btn-wrapper">
+          <a href="./button-clicker/index.html" class="play-link">Play Game</a>
+          <div id="clicker-checkmarks" class="corner-checkmarks"></div>
+        </div>
       </div>
     </div>
   </main>
@@ -43,7 +46,7 @@
     <div class="modal-box">
       <button id="close-auth-modal" class="close-btn">&times;</button>
       <h2>Join Ishan.fun</h2>
-      <p class="modal-sub">Create an account or log in to keep your high scores.</p>
+      <p class="modal-sub">Create an account or log in to keep your points.</p>
 
       <div class="auth-inputs">
         <input type="text" id="username" placeholder="Username (for new accounts)" />
@@ -78,23 +81,11 @@
       <p class="modal-sub">Top players on Ishan.fun</p>
 
       <ul id="leaderboard-list" class="leaderboard-list">
-        <li class="loading-item">Loading scores...</li>
+        <li class="loading-item">Loading points...</li>
       </ul>
     </div>
   </div>
 
   <script type="module" src="script.js"></script>
-  <div class="games-grid">
-  <div class="game-card">
-    <div class="card-badge">HOT</div>
-    <h2>Button Clicker</h2>
-    <p>Click your way to 5 Rebirths and trigger the finish sequence!</p>
-    
-    <!-- Status completion badges will populate here -->
-    <div id="button-clicker-status" class="completion-status"></div>
-
-    <a href="./button-clicker/index.html" class="play-link">Play Game</a>
-  </div>
-</div>
 </body>
 </html>
