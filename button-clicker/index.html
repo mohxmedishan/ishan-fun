@@ -8,7 +8,7 @@
 </head>
 <body>
 
-  <!-- Top Navbar matching Ishan.fun UI -->
+  <!-- Top Navbar -->
   <nav class="navbar">
     <a href="../index.html" class="logo">Ishan.fun</a>
     <div class="nav-actions">
@@ -16,10 +16,31 @@
     </div>
   </nav>
 
-  <!-- Main Counter Screen -->
+  <!-- Difficulty Selection Overlay -->
+  <div id="mode-overlay" class="modal-overlay show-modal">
+    <div id="mode-box" class="modal-box">
+      <h2>Select Difficulty</h2>
+      <p class="mode-subtitle">Choose your game mode to start</p>
+      
+      <div class="mode-options">
+        <button id="normal-mode-btn" class="mode-select-btn normal-btn">
+          <span class="mode-title">Normal Mode</span>
+          <span class="mode-desc">Reward: +5 Total Points • Standard Scaling</span>
+        </button>
+        
+        <button id="hardcore-mode-btn" class="mode-select-btn hardcore-btn">
+          <span class="mode-title">Hardcore Mode 🔥</span>
+          <span class="mode-desc">Reward: +10 Total Points • Shrinking Increment</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Game Container -->
   <div id="main-screen" class="screen-container">
 
     <div id="game-card">
+      <div id="mode-badge" class="badge">Normal</div>
       <h1>Button Counter</h1>
       <p>Count: <span id="count">0</span></p>
 
@@ -36,20 +57,22 @@
 
         <!-- Rebirth Button -->
         <button id="rebirth-btn">
-          Rebirth (2x Power)
+          Rebirth
         </button>
       </div>
     </div>
 
-    <!-- Game Over Modal Overlay -->
-    <div id="game-over-overlay">
-      <div id="game-over-box">
-        <h2 id="game-over-title">GAME OVER!</h2>
+    <!-- Victory / Completion Modal -->
+    <div id="game-over-overlay" class="modal-overlay">
+      <div id="game-over-box" class="modal-box">
+        <h2 id="game-over-title">GAME BEATEN! 🎉</h2>
         <div id="game-over-stats">
-          <p>Total Score: <span id="total-clicks">0</span></p>
+          <p>Reward Earned: <span id="earned-points">+5 Points</span></p>
+          <p>Mode: <span id="summary-mode">Normal</span></p>
+          <p class="completion-status">Status: Completed ✅</p>
         </div>
       </div>
-      <button id="restart-btn">Restart</button>
+      <button id="restart-btn">Play Again</button>
     </div>
 
   </div>
