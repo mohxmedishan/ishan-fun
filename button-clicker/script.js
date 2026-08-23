@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getAuth } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-import { getFirestore, doc, setDoc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { getFirestore, doc, getDoc, setDoc, increment } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyC5c-np0wNIMkcowH4Rr1i5r3B2-qGY1e4",
@@ -39,7 +39,7 @@ const earnedPointsEl = document.getElementById("earned-points");
 const summaryModeEl = document.getElementById("summary-mode");
 const restartBtn = document.getElementById("restart-btn");
 
-let gameMode = "normal"; // "normal" or "hardcore"
+let gameMode = "normal";
 let count = 0;
 let rebirths = 0;
 let isGameOver = false;
@@ -185,30 +185,46 @@ function handleRebirth(e) {
   }
 }
 
-async function saveCompletionToFirestore() {
-  if (!auth.currentUser) return;
-  const pointsEarned = gameMode === "hardcore" ? 10 : 5;
+async function handleRewardAndSave() {
+  if (!auth.currentUser) return 0;
+
+  const pointsForMode = gameMode === "hardcore" ? 10 : 5;
+  const userRef = doc(db, "users", auth.currentUser.uid);
 
   try {
-    const userRef = doc(db, "users", auth.currentUser.uid);
-    await setDoc(userRef, {
-      points: increment(pointsEarned),
-      buttonClickerStats: {
-        [gameMode]: "completed"
-      }
-    }, { merge: true });
+    const snap = await getDoc(userRef);
+    const userData = snap.exists() ? snap.data() : {};
+    const stats = userData.buttonClickerStats || {};
+
+    // Check if mode was already beaten before
+    const alreadyBeaten = stats[gameMode] === "completed";
+
+    if (!alreadyBeaten) {
+      await setDoc(userRef, {
+        points: increment(pointsForMode),
+        buttonClickerStats: {
+          [gameMode]: "completed"
+        }
+      }, { merge: true });
+
+      return pointsForMode; // Awarded points
+    } else {
+      // Already beaten, award 0 extra points
+      return 0;
+    }
   } catch (err) {
-    console.error("Error saving game completion:", err);
+    console.error("Error updating score/stats:", err);
+    return 0;
   }
 }
 
-function triggerGameOver() {
+async function triggerGameOver() {
   isGameOver = true;
-  const pointsEarned = gameMode === "hardcore" ? 10 : 5;
-  earnedPointsEl.textContent = `+${pointsEarned} Points`;
   summaryModeEl.textContent = gameMode === "hardcore" ? "Hardcore 🔥" : "Normal";
 
-  saveCompletionToFirestore();
+  const awarded = await handleRewardAndSave();
+  earnedPointsEl.textContent = awarded > 0 ? `+${awarded} Points` : "+0 Points (Already Earned)";
+
   gameOverOverlay.classList.add("show-modal");
 }
 
@@ -232,6 +248,7 @@ function resetGame() {
 function handleRestart(e) {
   if (e) e.preventDefault();
   animateButton(restartBtn);
+  gameOverOverlay.classList.remove("show-modal");
   modeOverlay.classList.add("show-modal");
 }
 
