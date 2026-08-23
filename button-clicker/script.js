@@ -183,42 +183,45 @@ function handleRebirth(e) {
 }
 
 async function handleRewardAndSave() {
-  if (!auth.currentUser) return;
+  if (!auth.currentUser) {
+    earnedPointsEl.textContent = "+0 Points (Not Logged In)";
+    return;
+  }
 
   const pointsForMode = gameMode === "hardcore" ? 10 : 5;
   const userRef = doc(db, "users", auth.currentUser.uid);
+  const completionKey = gameMode === "hardcore" ? "buttonClickerHardcore" : "buttonClickerNormal";
 
   try {
     const snap = await getDoc(userRef);
     const userData = snap.exists() ? snap.data() : {};
-    const stats = userData.buttonClickerStats || {};
 
-    if (stats[gameMode] !== "completed") {
+    // Check if player hasn't completed this mode yet
+    if (!userData[completionKey]) {
       await setDoc(userRef, {
         points: increment(pointsForMode),
-        buttonClickerStats: {
-          [gameMode]: "completed"
-        }
+        [completionKey]: true
       }, { merge: true });
 
-      earnedPointsEl.textContent = `+${pointsForMode} Points`;
+      earnedPointsEl.textContent = `+${pointsForMode} Points!`;
     } else {
       earnedPointsEl.textContent = "+0 Points (Already Earned)";
     }
   } catch (err) {
-    console.error("Error saving stats:", err);
+    console.error("Error saving points:", err);
+    earnedPointsEl.textContent = "Error saving reward";
   }
 }
 
 function triggerGameOver() {
   isGameOver = true;
   summaryModeEl.textContent = gameMode === "hardcore" ? "Hardcore 🔥" : "Normal";
-  earnedPointsEl.textContent = "Checking points...";
+  earnedPointsEl.textContent = "Calculating...";
   
-  // Show modal instantly
+  // Instant modal popup
   gameOverOverlay.classList.add("show-modal");
 
-  // Save reward asynchronously
+  // Save reward & state in Firestore background
   handleRewardAndSave();
 }
 
