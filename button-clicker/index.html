@@ -1,1 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Button Clicker</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
 
+  <!-- Screen 1: Cinematic Loading Screen -->
+  <div id="loading-screen" class="screen-container">
+
+    <div id="loading-circle">
+      <div id="loading-content">
+        <h1 id="typewriter-container">
+          <span id="typewriter"></span><span id="cursor">|</span>
+        </h1>
+
+        <button id="play-btn">Play</button>
+      </div>
+    </div>
+
+    <!-- Charcoal Transition Overlay Circle -->
+    <div id="charcoal-overlay"></div>
+
+  </div>
+
+
+  <!-- Screen 2: Main Counter Screen -->
+  <div id="main-screen" class="screen-container">
+
+    <div id="game-card">
+
+      <h1>Button Counter</h1>
+
+      <p>Count: <span id="count">0</span></p>
+
+      <!-- Click Button -->
+      <button id="increment-btn">Click Me</button>
+
+
+      <!-- Shared Slot
+           Progress Bar and Rebirth Button occupy
+           the exact same space and can never overlap.
+      -->
+      <div id="action-slot">
+
+        <!-- Progress Bar -->
+        <div id="progress-container">
+          <div id="progress-fill"></div>
+          <span id="progress-text">0%</span>
+        </div>
+
+        <!-- Rebirth Button -->
+        <button id="rebirth-btn">
+          Rebirth (2x Power)
+        </button>
+
+      </div>
+
+    </div>
+
+
+    <!-- Game Over Modal Overlay -->
+    <div id="game-over-overlay">
+
+      <div id="game-over-box">
+
+        <h2 id="game-over-title">
+          GAME OVER!
+        </h2>
+
+        <div id="game-over-stats">
+          <p>
+            Total Score:
+            <span id="total-clicks">0</span>
+          </p>
+        </div>
+
+      </div>
+
+      <button id="restart-btn">
+        Restart
+      </button>
+
+    </div>
+
+  </div>
+
+
+  <script src="script.js"></script>
+
+</body>
+</html>
