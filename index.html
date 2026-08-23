@@ -1,47 +1,88 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Ishan.fun</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-  <header class="header">
-    <h1 class="title">Ishan.fun</h1>
-    <p class="subtitle">games and stuff by Ishan</p>
-  </header>
-
-  <main class="grid-container">
-    <!-- Active Game 1: Button Clicker -->
-    <a href="./button-clicker/index.html" class="card card-active">
-      <div class="card-content">
-        <h2>Button Clicker</h2>
-        <p>The original experimental clicker game.</p>
+  <!-- Top Navbar -->
+  <nav class="navbar">
+    <div class="logo">Ishan.fun</div>
+    <div class="nav-actions">
+      <button id="leaderboard-btn" class="nav-btn">🏆 Leaderboard</button>
+      <div id="user-pill" class="user-pill">
+        <span id="user-status">Not logged in</span>
+        <button id="open-auth-btn" class="nav-btn primary">Log In</button>
+        <button id="logout-btn" class="nav-btn danger" style="display: none;">Log Out</button>
       </div>
-      <span class="badge">Check Out</span>
-    </a>
-
-    <!-- Placeholder Game 2 -->
-    <div class="card card-placeholder">
-      <div class="card-content">
-        <h2>Coming Soon</h2>
-        <p>Experimental mini-game in development.</p>
-      </div>
-      <span class="badge badge-locked">Locked</span>
     </div>
+  </nav>
 
-    <!-- Placeholder Game 3 -->
-    <div class="card card-placeholder">
-      <div class="card-content">
-        <h2>Coming Soon</h2>
-        <p>Experimental mini-game in development.</p>
+  <!-- Hero / Games Section -->
+  <main class="main-container">
+    <header class="hero">
+      <h1>Play & Compete</h1>
+      <p>Log in to save your high scores to the global leaderboard.</p>
+    </header>
+
+    <div class="games-grid">
+      <div class="game-card">
+        <div class="card-badge">HOT</div>
+        <h2>Button Clicker</h2>
+        <p>Click your way to 5 Rebirths and trigger the finish sequence!</p>
+        <a href="./button-clicker/index.html" class="play-link">Play Game</a>
       </div>
-      <span class="badge badge-locked">Locked</span>
     </div>
   </main>
 
-  <script src="script.js"></script>
+  <!-- Auth Modal -->
+  <div id="auth-modal" class="modal-overlay">
+    <div class="modal-box">
+      <button id="close-auth-modal" class="close-btn">&times;</button>
+      <h2>Join Ishan.fun</h2>
+      <p class="modal-sub">Create an account or log in to keep your high scores.</p>
+
+      <div class="auth-inputs">
+        <input type="text" id="username" placeholder="Username (for new accounts)" />
+        <input type="email" id="email" placeholder="Email address" />
+        <input type="password" id="password" placeholder="Password" />
+      </div>
+
+      <div class="auth-action-btns">
+        <button id="signup-btn" class="action-btn">Create Account</button>
+        <button id="login-btn" class="action-btn secondary">Log In</button>
+      </div>
+
+      <div class="divider"><span>OR</span></div>
+
+      <button id="google-btn" class="google-btn">
+        <svg width="18" height="18" viewBox="0 0 18 18">
+          <path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844a4.14 4.14 0 0 1-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.616z"/>
+          <path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z"/>
+          <path fill="#FBBC05" d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z"/>
+          <path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z"/>
+        </svg>
+        Continue with Google
+      </button>
+    </div>
+  </div>
+
+  <!-- Leaderboard Modal -->
+  <div id="leaderboard-modal" class="modal-overlay">
+    <div class="modal-box">
+      <button id="close-lb-modal" class="close-btn">&times;</button>
+      <h2>🏆 Global Leaderboard</h2>
+      <p class="modal-sub">Top players on Ishan.fun</p>
+
+      <ul id="leaderboard-list" class="leaderboard-list">
+        <li class="loading-item">Loading scores...</li>
+      </ul>
+    </div>
+  </div>
+
+  <script type="module" src="script.js"></script>
 </body>
 </html>
