@@ -7,7 +7,6 @@ import {
   getFirestore, doc, setDoc, getDoc, collection, query, orderBy, limit, getDocs 
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-// Firebase Configuration
 const firebaseConfig = {
   apiKey: "AIzaSyC5c-np0wNIMkcowH4Rr1i5r3B2-qGY1e4",
   authDomain: "ishan-fun.firebaseapp.com",
@@ -18,13 +17,11 @@ const firebaseConfig = {
   measurementId: "G-S8H37T0FNX"
 };
 
-// Initialize Services
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 const googleProvider = new GoogleAuthProvider();
 
-// DOM Elements
 const authModal = document.getElementById("auth-modal");
 const lbModal = document.getElementById("leaderboard-modal");
 const openAuthBtn = document.getElementById("open-auth-btn");
@@ -35,8 +32,8 @@ const closeLbBtn = document.getElementById("close-lb-modal");
 const statusEl = document.getElementById("user-status");
 const logoutBtn = document.getElementById("logout-btn");
 const leaderboardList = document.getElementById("leaderboard-list");
+const clickerStatus = document.getElementById("button-clicker-status");
 
-// Modal Toggles
 openAuthBtn?.addEventListener("click", () => authModal.classList.add("active"));
 closeAuthBtn?.addEventListener("click", () => authModal.classList.remove("active"));
 leaderboardBtn?.addEventListener("click", () => {
@@ -45,7 +42,7 @@ leaderboardBtn?.addEventListener("click", () => {
 });
 closeLbBtn?.addEventListener("click", () => lbModal.classList.remove("active"));
 
-// 1. SIGN UP
+// SIGN UP
 document.getElementById("signup-btn")?.addEventListener("click", async () => {
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
@@ -67,7 +64,7 @@ document.getElementById("signup-btn")?.addEventListener("click", async () => {
   }
 });
 
-// 2. LOG IN
+// LOG IN
 document.getElementById("login-btn")?.addEventListener("click", async () => {
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
@@ -82,7 +79,7 @@ document.getElementById("login-btn")?.addEventListener("click", async () => {
   }
 });
 
-// 3. GOOGLE SIGN IN
+// GOOGLE SIGN IN
 document.getElementById("google-btn")?.addEventListener("click", async () => {
   try {
     const res = await signInWithPopup(auth, googleProvider);
@@ -103,25 +100,36 @@ document.getElementById("google-btn")?.addEventListener("click", async () => {
   }
 });
 
-// 4. LOG OUT
+// LOG OUT
 logoutBtn?.addEventListener("click", () => signOut(auth));
 
-// 5. TRACK AUTH STATE
+// TRACK AUTH STATE & UPDATE CHECKMARKS
 onAuthStateChanged(auth, async (user) => {
   if (user) {
     const userSnap = await getDoc(doc(db, "users", user.uid));
-    const name = userSnap.exists() ? userSnap.data().username : (user.displayName || "Player");
-    statusEl.textContent = name;
+    const userData = userSnap.exists() ? userSnap.data() : {};
+    
+    statusEl.textContent = userData.username || (user.displayName || "Player");
     openAuthBtn.style.display = "none";
     logoutBtn.style.display = "inline-block";
+
+    // Display checkmarks for completed modes
+    if (clickerStatus) {
+      let badgesHtml = "";
+      if (userData.buttonClickerNormal) badgesHtml += '<span class="badge-completed">✔ Normal</span> ';
+      if (userData.buttonClickerHardcore) badgesHtml += '<span class="badge-completed hardcore">✔ Hardcore</span>';
+      clickerStatus.innerHTML = badgesHtml;
+    }
+
   } else {
     statusEl.textContent = "Not logged in";
     openAuthBtn.style.display = "inline-block";
     logoutBtn.style.display = "none";
+    if (clickerStatus) clickerStatus.innerHTML = "";
   }
 });
 
-// 6. FETCH LEADERBOARD
+// FETCH LEADERBOARD (highScore)
 async function fetchLeaderboard() {
   leaderboardList.innerHTML = '<li class="loading-item">Loading scores...</li>';
   try {
