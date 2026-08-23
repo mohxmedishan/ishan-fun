@@ -32,7 +32,6 @@ const closeLbBtn = document.getElementById("close-lb-modal");
 const statusEl = document.getElementById("user-status");
 const logoutBtn = document.getElementById("logout-btn");
 const leaderboardList = document.getElementById("leaderboard-list");
-const clickerCheckmarks = document.getElementById("clicker-checkmarks");
 
 openAuthBtn?.addEventListener("click", () => authModal.classList.add("active"));
 closeAuthBtn?.addEventListener("click", () => authModal.classList.remove("active"));
@@ -56,6 +55,7 @@ document.getElementById("signup-btn")?.addEventListener("click", async () => {
       username: username,
       email: email,
       points: 0,
+      hcPoints: 0,
       createdAt: new Date()
     });
     authModal.classList.remove("active");
@@ -91,6 +91,7 @@ document.getElementById("google-btn")?.addEventListener("click", async () => {
         username: res.user.displayName || "Player",
         email: res.user.email,
         points: 0,
+        hcPoints: 0,
         createdAt: new Date()
       });
     }
@@ -103,7 +104,7 @@ document.getElementById("google-btn")?.addEventListener("click", async () => {
 // LOG OUT
 logoutBtn?.addEventListener("click", () => signOut(auth));
 
-// TRACK AUTH STATE & UPDATE CORNER CHECKMARKS
+// TRACK AUTH STATE
 onAuthStateChanged(auth, async (user) => {
   if (user) {
     const userSnap = await getDoc(doc(db, "users", user.uid));
@@ -112,26 +113,16 @@ onAuthStateChanged(auth, async (user) => {
     statusEl.textContent = userData.username || (user.displayName || "Player");
     openAuthBtn.style.display = "none";
     logoutBtn.style.display = "inline-block";
-
-    // Show checkmarks strictly inside the play button bottom-right corner
-    if (clickerCheckmarks) {
-      let markHtml = "";
-      if (userData.buttonClickerNormal) markHtml += '<span class="chk-green">✓</span>';
-      if (userData.buttonClickerHardcore) markHtml += '<span class="chk-red">✓</span>';
-      clickerCheckmarks.innerHTML = markHtml;
-    }
-
   } else {
     statusEl.textContent = "Not logged in";
     openAuthBtn.style.display = "inline-block";
     logoutBtn.style.display = "none";
-    if (clickerCheckmarks) clickerCheckmarks.innerHTML = "";
   }
 });
 
-// FETCH LEADERBOARD (using points)
+// FETCH LEADERBOARD (displays both points and hcPoints)
 async function fetchLeaderboard() {
-  leaderboardList.innerHTML = '<li class="loading-item">Loading points...</li>';
+  leaderboardList.innerHTML = '<li class="loading-item">Loading leaderboard...</li>';
   try {
     const q = query(collection(db, "users"), orderBy("points", "desc"), limit(10));
     const querySnapshot = await getDocs(q);
@@ -141,17 +132,24 @@ async function fetchLeaderboard() {
 
     querySnapshot.forEach((doc) => {
       const data = doc.data();
+      const pts = data.points || 0;
+      const hcPts = data.hcPoints || 0;
+
       const li = document.createElement("li");
       li.className = "leaderboard-item";
       li.innerHTML = `
         <span class="rank">#${rank}</span>
         <span class="name">${data.username || "Anonymous"}</span>
-        <span class="score">${data.points || 0} pts</span>
+        <div class="scores">
+          <span class="score-norm">${pts} pts</span>
+          <span class="score-hc">${hcPts} HC</span>
+        </div>
       `;
       leaderboardList.appendChild(li);
       rank++;
     });
   } catch (err) {
+    console.error("Leaderboard fetch error:", err);
     leaderboardList.innerHTML = '<li class="loading-item">Failed to load leaderboard.</li>';
   }
 }
