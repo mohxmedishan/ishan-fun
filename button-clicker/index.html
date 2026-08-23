@@ -1,95 +1,71 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Button Clicker - Ishan.fun</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Button Clicker</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-  <!-- Top Navbar -->
-  <nav class="navbar">
-    <a href="../index.html" class="logo">Ishan.fun</a>
-    <div class="nav-actions">
-      <a href="../index.html" class="nav-btn">← Back to Home</a>
-    </div>
-  </nav>
-
-  <!-- Difficulty Selection Overlay -->
-  <div id="mode-overlay" class="modal-overlay show-modal">
-    <div id="mode-box" class="modal-box">
-      <h2>Select Difficulty</h2>
-      <p class="mode-subtitle">Choose your game mode to start</p>
+  <main id="main-screen">
+    <div id="game-card" class="game-card">
       
-      <div class="mode-options">
-        <button id="normal-mode-btn" class="mode-select-btn normal-btn">
-          <span class="mode-title">Normal Mode</span>
-          <span class="mode-desc">Reward: +5 Points (One-time) • Standard Scaling</span>
+      <div id="mode-badge" class="mode-badge">Normal</div>
+
+      <div class="counter-container">
+        <h1 id="count">0</h1>
+      </div>
+
+      <div class="action-area">
+        <button id="increment-btn" class="game-btn">CLICK ME</button>
+        <button id="rebirth-btn" class="rebirth-btn">Rebirth to 1 (2 per click)</button>
+      </div>
+
+      <div id="progress-container" class="progress-container hide-progress">
+        <div class="progress-bar">
+          <div id="progress-fill" class="progress-fill"></div>
+        </div>
+        <span id="progress-text">0%</span>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Mode Selection Modal -->
+  <div id="mode-overlay" class="modal-overlay show-modal">
+    <div class="modal-box">
+      <h2>Select Mode</h2>
+      <p>Choose your difficulty to begin:</p>
+
+      <div class="mode-btns">
+        <button id="normal-mode-btn" class="mode-choice-btn">
+          <strong>Normal Mode</strong>
+          <span>Earn +5 Points</span>
         </button>
-        
-        <button id="hardcore-mode-btn" class="mode-select-btn hardcore-btn">
-          <span class="mode-title">Hardcore Mode 🔥</span>
-          <span class="mode-desc">Reward: +10 Points (One-time) • Shrinking Increment</span>
+
+        <button id="hardcore-mode-btn" class="mode-choice-btn hardcore">
+          <strong>Hardcore Mode 🔥</strong>
+          <span>Earn +10 Points</span>
         </button>
       </div>
     </div>
   </div>
 
-  <!-- Main Game Container -->
-  <div id="main-screen" class="screen-container">
+  <!-- Game Over Modal -->
+  <div id="game-over-overlay" class="modal-overlay">
+    <div class="modal-box">
+      <h2>🎉 Game Complete!</h2>
+      <p>You beat <span id="summary-mode">Normal</span> mode!</p>
 
-    <div id="game-card">
-      <div id="mode-badge" class="badge">Normal</div>
-      <h1>Button Counter</h1>
-      <p>Count: <span id="count">0</span></p>
-
-      <!-- Click Button -->
-      <button id="increment-btn">Click Me</button>
-
-      <!-- Action Slot -->
-      <div id="action-slot">
-        <!-- Progress Bar -->
-        <div id="progress-container">
-          <div id="progress-fill"></div>
-          <span id="progress-text">0%</span>
-        </div>
-
-        <!-- Rebirth Button -->
-        <button id="rebirth-btn">
-          Rebirth
-        </button>
+      <div class="reward-box">
+        <span id="earned-points">+5 Points!</span>
       </div>
-    </div>
 
-    <!-- Victory / Completion Modal -->
-    <div id="game-over-overlay" class="modal-overlay">
-      <div id="game-over-box" class="modal-box">
-        <h2 id="game-over-title">GAME BEATEN! 🎉</h2>
-        <div id="game-over-stats">
-          <p>Reward Earned: <span id="earned-points">Checking points...</span></p>
-          <p>Mode: <span id="summary-mode">Normal</span></p>
-        </div>
-      </div>
-      <button id="restart-btn">Play Again</button>
+      <button id="restart-btn" class="restart-btn">Play Again</button>
     </div>
-
   </div>
 
   <script type="module" src="script.js"></script>
-<!-- Dev Panel Trigger & Overlay -->
-<button id="dev-toggle-btn" class="dev-toggle-btn hidden">🛠️ DEV</button>
-
-<div id="dev-overlay" class="dev-overlay hidden">
-  <div class="dev-box">
-    <h3>Developer Panel</h3>
-    <div class="dev-actions">
-      <button id="dev-instant-win-btn" class="dev-btn">⚡ Instant Win</button>
-      <button id="dev-reset-points-btn" class="dev-btn danger">🔄 Reset Points Flag</button>
-      <button id="dev-add-points-btn" class="dev-btn">+100 Points</button>
-    </div>
-    <button id="dev-close-btn" class="dev-close-btn">Close</button>
-  </div>
-</div>
 </body>
 </html>
