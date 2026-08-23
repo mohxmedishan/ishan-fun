@@ -65,11 +65,9 @@ function selectMode(mode) {
 }
 
 function getIncrementValue() {
-  if (gameMode === "normal") {
-    return Math.pow(2, rebirths);
-  } else {
-    return hardcoreIncrements[Math.min(rebirths, hardcoreIncrements.length - 1)];
-  }
+  return gameMode === "normal"
+    ? Math.pow(2, rebirths)
+    : hardcoreIncrements[Math.min(rebirths, hardcoreIncrements.length - 1)];
 }
 
 function animateButton(btn) {
@@ -127,7 +125,6 @@ function handleIncrement(e) {
   }
 
   const inc = getIncrementValue();
-
   const rect = incrementBtn.getBoundingClientRect();
   const posX = e && e.clientX ? e.clientX : rect.left + rect.width / 2;
   const posY = rect.top - 28;
@@ -186,7 +183,7 @@ function handleRebirth(e) {
 }
 
 async function handleRewardAndSave() {
-  if (!auth.currentUser) return 0;
+  if (!auth.currentUser) return;
 
   const pointsForMode = gameMode === "hardcore" ? 10 : 5;
   const userRef = doc(db, "users", auth.currentUser.uid);
@@ -196,10 +193,7 @@ async function handleRewardAndSave() {
     const userData = snap.exists() ? snap.data() : {};
     const stats = userData.buttonClickerStats || {};
 
-    // Check if mode was already beaten before
-    const alreadyBeaten = stats[gameMode] === "completed";
-
-    if (!alreadyBeaten) {
+    if (stats[gameMode] !== "completed") {
       await setDoc(userRef, {
         points: increment(pointsForMode),
         buttonClickerStats: {
@@ -207,25 +201,25 @@ async function handleRewardAndSave() {
         }
       }, { merge: true });
 
-      return pointsForMode; // Awarded points
+      earnedPointsEl.textContent = `+${pointsForMode} Points`;
     } else {
-      // Already beaten, award 0 extra points
-      return 0;
+      earnedPointsEl.textContent = "+0 Points (Already Earned)";
     }
   } catch (err) {
-    console.error("Error updating score/stats:", err);
-    return 0;
+    console.error("Error saving stats:", err);
   }
 }
 
-async function triggerGameOver() {
+function triggerGameOver() {
   isGameOver = true;
   summaryModeEl.textContent = gameMode === "hardcore" ? "Hardcore 🔥" : "Normal";
-
-  const awarded = await handleRewardAndSave();
-  earnedPointsEl.textContent = awarded > 0 ? `+${awarded} Points` : "+0 Points (Already Earned)";
-
+  earnedPointsEl.textContent = "Checking points...";
+  
+  // Show modal instantly
   gameOverOverlay.classList.add("show-modal");
+
+  // Save reward asynchronously
+  handleRewardAndSave();
 }
 
 function resetGame() {
