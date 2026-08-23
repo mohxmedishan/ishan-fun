@@ -151,7 +151,6 @@ body {
 }
 
 .btn-wrapper {
-  position: relative;
   width: 100%;
 }
 
@@ -169,26 +168,6 @@ body {
 
 .play-link:hover {
   opacity: 0.9;
-}
-
-.corner-checkmarks {
-  position: absolute;
-  right: 12px;
-  bottom: 12px;
-  display: flex;
-  align-items: center;
-  gap: 2px;
-  pointer-events: none;
-  font-size: 1rem;
-  font-weight: bold;
-}
-
-.chk-green {
-  color: #22c55e;
-}
-
-.chk-red {
-  color: #ef4444;
 }
 
 /* Modals */
@@ -219,7 +198,7 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 24px;
   width: 100%;
-  max-width: 400px;
+  max-width: 420px;
   padding: 32px;
   position: relative;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
@@ -246,7 +225,7 @@ body {
 }
 
 .modal-sub {
-  color: #71717a;
+  color: #d4d4d8;
   font-size: 0.85rem;
   margin-bottom: 24px;
 }
@@ -340,17 +319,16 @@ body {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  max-height: 300px;
+  max-height: 320px;
   overflow-y: auto;
 }
 
 .leaderboard-item {
   display: flex;
-  justify-content: space-between;
   align-items: center;
   padding: 12px 16px;
-  background: rgba(255, 255, 255, 0.03);
-  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 12px;
   font-size: 0.9rem;
 }
 
@@ -362,10 +340,22 @@ body {
 
 .leaderboard-item .name {
   flex-grow: 1;
-  color: #a1a1aa;
+  color: #ffffff;
+  font-weight: 600;
 }
 
-.leaderboard-item .score {
+.leaderboard-item .scores {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.leaderboard-item .score-norm {
   font-weight: 700;
   color: #4ade80;
+}
+
+.leaderboard-item .score-hc {
+  font-weight: 700;
+  color: #ff5e00;
 }
