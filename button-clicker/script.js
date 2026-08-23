@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { getAuth } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import { getFirestore, doc, getDoc, setDoc, increment } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -15,8 +15,6 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
-
-const DEVELOPER_UID = "cmHKgvpI4AeoG8jxWTRdfBLyDN33";
 
 const tempColors = ["#0f0f12", "#005f73", "#0a9396", "#94d2bd", "#e9d8a6", "#ee9b00", "#ca6702", "#bb3e03", "#ae2012", "#9b5de5", "#f15bb5", "#00bbf9"];
 const hardcoreIncrements = [1, 0.75, 0.50, 0.25, 0.125, 0.10];
@@ -200,7 +198,7 @@ async function handleRewardAndSave() {
 
     if (!userData[completionKey]) {
       await setDoc(userRef, {
-        highScore: increment(pointsForMode),
+        points: increment(pointsForMode),
         [completionKey]: true
       }, { merge: true });
 
@@ -253,28 +251,3 @@ hardcoreModeBtn.addEventListener("pointerdown", () => selectMode("hardcore"));
 incrementBtn.addEventListener("pointerdown", handleIncrement);
 rebirthBtn.addEventListener("pointerdown", handleRebirth);
 restartBtn.addEventListener("pointerdown", handleRestart);
-
-// --- DEVELOPER DEBUG MENU ---
-onAuthStateChanged(auth, (user) => {
-  if (user && user.uid === DEVELOPER_UID) {
-    const devBtn = document.createElement("button");
-    devBtn.textContent = "🛠️ DEV MENU";
-    devBtn.style.cssText = "position:fixed;bottom:20px;right:20px;padding:10px;background:#f59e0b;color:#000;font-weight:bold;border:none;border-radius:8px;cursor:pointer;z-index:999;";
-    document.body.appendChild(devBtn);
-
-    devBtn.addEventListener("click", async () => {
-      const choice = prompt("DEV OPTIONS:\n1: Insta Win\n2: Add +100 HighScore\n3: Reset Game Completion Flags");
-      if (choice === "1") {
-        count = 100;
-        rebirths = 5;
-        triggerGameOver();
-      } else if (choice === "2") {
-        await setDoc(doc(db, "users", user.uid), { highScore: increment(100) }, { merge: true });
-        alert("Added +100 to HighScore!");
-      } else if (choice === "3") {
-        await setDoc(doc(db, "users", user.uid), { buttonClickerNormal: false, buttonClickerHardcore: false }, { merge: true });
-        alert("Completion reset! You can earn points again.");
-      }
-    });
-  }
-});
