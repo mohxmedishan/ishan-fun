@@ -31,6 +31,7 @@ const closeLbBtn = document.getElementById("close-lb-modal");
 
 const statusEl = document.getElementById("user-status");
 const logoutBtn = document.getElementById("logout-btn");
+const heroSubtitle = document.getElementById("hero-subtitle");
 const leaderboardList = document.getElementById("leaderboard-list");
 
 openAuthBtn?.addEventListener("click", () => authModal.classList.add("active"));
@@ -58,7 +59,6 @@ document.getElementById("signup-btn")?.addEventListener("click", async () => {
       hcPoints: 0,
       createdAt: new Date()
     });
-    authModal.classList.remove("active");
   } catch (err) {
     alert(err.message);
   }
@@ -73,7 +73,6 @@ document.getElementById("login-btn")?.addEventListener("click", async () => {
 
   try {
     await signInWithEmailAndPassword(auth, email, password);
-    authModal.classList.remove("active");
   } catch (err) {
     alert(err.message);
   }
@@ -95,7 +94,6 @@ document.getElementById("google-btn")?.addEventListener("click", async () => {
         createdAt: new Date()
       });
     }
-    authModal.classList.remove("active");
   } catch (err) {
     alert(err.message);
   }
@@ -109,18 +107,33 @@ onAuthStateChanged(auth, async (user) => {
   if (user) {
     const userSnap = await getDoc(doc(db, "users", user.uid));
     const userData = userSnap.exists() ? userSnap.data() : {};
+    const username = userData.username || (user.displayName || "Player");
     
-    statusEl.textContent = userData.username || (user.displayName || "Player");
+    statusEl.textContent = username;
     openAuthBtn.style.display = "none";
     logoutBtn.style.display = "inline-block";
+
+    // Update hero subtitle on login
+    if (heroSubtitle) {
+      heroSubtitle.textContent = `Compete with top players on the leaderboard, ${username}!`;
+    }
+
+    // Auto-close login popup
+    authModal.classList.remove("active");
+
   } else {
     statusEl.textContent = "Not logged in";
     openAuthBtn.style.display = "inline-block";
     logoutBtn.style.display = "none";
+
+    // Revert hero subtitle on logout
+    if (heroSubtitle) {
+      heroSubtitle.textContent = "Log in to save your points to the global leaderboard.";
+    }
   }
 });
 
-// FETCH LEADERBOARD (displays both points and hcPoints)
+// FETCH LEADERBOARD
 async function fetchLeaderboard() {
   leaderboardList.innerHTML = '<li class="loading-item">Loading leaderboard...</li>';
   try {
