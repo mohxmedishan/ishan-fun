@@ -22,6 +22,7 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const googleProvider = new GoogleAuthProvider();
 
+// DOM Elements
 const authModal = document.getElementById("auth-modal");
 const lbModal = document.getElementById("leaderboard-modal");
 const openAuthBtn = document.getElementById("open-auth-btn");
@@ -34,6 +35,7 @@ const logoutBtn = document.getElementById("logout-btn");
 const heroSubtitle = document.getElementById("hero-subtitle");
 const leaderboardList = document.getElementById("leaderboard-list");
 
+// Modal Toggles
 openAuthBtn?.addEventListener("click", () => authModal.classList.add("active"));
 closeAuthBtn?.addEventListener("click", () => authModal.classList.remove("active"));
 leaderboardBtn?.addEventListener("click", () => {
@@ -44,9 +46,9 @@ closeLbBtn?.addEventListener("click", () => lbModal.classList.remove("active"));
 
 // SIGN UP
 document.getElementById("signup-btn")?.addEventListener("click", async () => {
-  const email = document.getElementById("email").value;
+  const email = document.getElementById("email").value.trim();
   const password = document.getElementById("password").value;
-  const username = document.getElementById("username").value || "Player";
+  const username = document.getElementById("username").value.trim() || "Player";
 
   if (!email || !password) return alert("Please fill in email and password.");
 
@@ -66,7 +68,7 @@ document.getElementById("signup-btn")?.addEventListener("click", async () => {
 
 // LOG IN
 document.getElementById("login-btn")?.addEventListener("click", async () => {
-  const email = document.getElementById("email").value;
+  const email = document.getElementById("email").value.trim();
   const password = document.getElementById("password").value;
 
   if (!email || !password) return alert("Please fill in email and password.");
@@ -102,39 +104,56 @@ document.getElementById("google-btn")?.addEventListener("click", async () => {
 // LOG OUT
 logoutBtn?.addEventListener("click", () => signOut(auth));
 
-// TRACK AUTH STATE
+// AUTH STATE OBSERVER (Handles UI updates & Auto-close)
 onAuthStateChanged(auth, async (user) => {
   if (user) {
-    const userSnap = await getDoc(doc(db, "users", user.uid));
-    const userData = userSnap.exists() ? userSnap.data() : {};
-    const username = userData.username || (user.displayName || "Player");
-    
-    statusEl.textContent = username;
-    openAuthBtn.style.display = "none";
-    logoutBtn.style.display = "inline-block";
-
-    // Update hero subtitle on login
-    if (heroSubtitle) {
-      heroSubtitle.textContent = `Compete with top players on the leaderboard, ${username}!`;
+    // Attempt Firestore fetch
+    let displayUsername = "";
+    try {
+      const userSnap = await getDoc(doc(db, "users", user.uid));
+      if (userSnap.exists() && userSnap.data().username) {
+        displayUsername = userSnap.data().username;
+      }
+    } catch (e) {
+      console.warn("Firestore fetch deferred:", e);
     }
 
-    // Auto-close login popup
-    authModal.classList.remove("active");
+    // Fallbacks if database isn't populated yet
+    if (!displayUsername) {
+      displayUsername = user.displayName || user.email?.split("@")[0] || "Player";
+    }
+
+    // Update status bar & Navbar
+    if (statusEl) statusEl.textContent = displayUsername;
+    if (openAuthBtn) openAuthBtn.style.display = "none";
+    if (logoutBtn) logoutBtn.style.display = "inline-block";
+
+    // Update Hero Subtitle Text
+    if (heroSubtitle) {
+      heroSubtitle.textContent = `🔥 Welcome back, ${displayUsername}! Compete with top players on the leaderboard.`;
+    }
+
+    // AUTO-CLOSE THE AUTH MODAL
+    if (authModal) {
+      authModal.classList.remove("active");
+    }
 
   } else {
-    statusEl.textContent = "Not logged in";
-    openAuthBtn.style.display = "inline-block";
-    logoutBtn.style.display = "none";
+    // Logged Out State
+    if (statusEl) statusEl.textContent = "Not logged in";
+    if (openAuthBtn) openAuthBtn.style.display = "inline-block";
+    if (logoutBtn) logoutBtn.style.display = "none";
 
-    // Revert hero subtitle on logout
+    // Reset Hero Subtitle
     if (heroSubtitle) {
       heroSubtitle.textContent = "Log in to save your points to the global leaderboard.";
     }
   }
 });
 
-// FETCH LEADERBOARD
+// FETCH LEADERBOARD DATA
 async function fetchLeaderboard() {
+  if (!leaderboardList) return;
   leaderboardList.innerHTML = '<li class="loading-item">Loading leaderboard...</li>';
   try {
     const q = query(collection(db, "users"), orderBy("points", "desc"), limit(10));
