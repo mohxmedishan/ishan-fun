@@ -246,13 +246,16 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 24px;
   width: 100%;
-  max-width: 440px;
   padding: 32px;
   position: relative;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
   max-height: 90vh;
   display: flex;
   flex-direction: column;
+}
+
+.modal-box.modal-standard {
+  max-width: 480px;
 }
 
 .close-btn {
@@ -370,7 +373,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  max-height: 260px;
+  max-height: 280px;
   overflow-y: auto;
   padding-right: 4px;
 }
@@ -464,8 +467,8 @@ body {
   list-style: none;
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  max-height: 320px;
+  gap: 10px;
+  max-height: 280px;
   overflow-y: auto;
   padding-right: 4px;
 }
@@ -474,7 +477,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px;
+  padding: 14px 16px;
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 14px;
@@ -500,19 +503,19 @@ body {
 .ach-title-row {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 
 .ach-name {
   font-weight: 700;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   color: #ffffff;
 }
 
 .ach-reward {
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   font-weight: 800;
-  padding: 2px 8px;
+  padding: 2px 6px;
   border-radius: 6px;
 }
 
@@ -527,14 +530,14 @@ body {
 }
 
 .ach-desc {
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   color: #a1a1aa;
 }
 
 .ach-status {
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   font-weight: 800;
-  padding: 6px 10px;
+  padding: 5px 9px;
   border-radius: 8px;
   letter-spacing: 0.5px;
 }
