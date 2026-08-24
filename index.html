@@ -10,7 +10,7 @@
 
   <!-- Top Navbar -->
   <nav class="navbar">
-    <div class="logo">Ishan.fun</div>
+    <div id="logo" class="logo">Ishan.fun</div>
     <div class="nav-actions">
       <button id="leaderboard-btn" class="nav-btn">🏆 Leaderboard</button>
       <div id="user-pill" class="user-pill">
@@ -74,7 +74,7 @@
 
   <!-- Leaderboard Modal -->
   <div id="leaderboard-modal" class="modal-overlay">
-    <div class="modal-box">
+    <div class="modal-box leaderboard-box">
       <button id="close-lb-modal" class="close-btn">&times;</button>
       <h2>🏆 Global Leaderboard</h2>
       <p class="modal-sub">Top players on Ishan.fun</p>
@@ -82,6 +82,16 @@
       <ul id="leaderboard-list" class="leaderboard-list">
         <li class="loading-item">Loading points...</li>
       </ul>
+
+      <!-- Sticky Personal Rank Bar -->
+      <div id="personal-rank-bar" class="personal-rank-bar" style="display: none;">
+        <span id="my-rank" class="rank">#--</span>
+        <span class="name">You</span>
+        <div class="scores">
+          <span id="my-pts" class="score-norm">0 pts</span>
+          <span id="my-hc" class="score-hc">0 HCP</span>
+        </div>
+      </div>
     </div>
   </div>
 
