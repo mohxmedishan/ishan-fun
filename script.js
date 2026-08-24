@@ -36,7 +36,7 @@ function getAudioContext() {
 }
 
 // SFX Generator Functions
-const playSFX = {
+export const playSFX = {
   click: () => {
     const ctx = getAudioContext();
     const osc = ctx.createOscillator();
@@ -81,6 +81,22 @@ const playSFX = {
       osc.stop(ctx.currentTime + (idx * 0.08) + 0.15);
     });
   },
+  achievement: () => {
+    const ctx = getAudioContext();
+    const notes = [523.25, 659.25, 783.99, 1046.50];
+    notes.forEach((freq, idx) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "triangle";
+      osc.frequency.setValueAtTime(freq, ctx.currentTime + (idx * 0.07));
+      gain.gain.setValueAtTime(0.2, ctx.currentTime + (idx * 0.07));
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + (idx * 0.07) + 0.25);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(ctx.currentTime + (idx * 0.07));
+      osc.stop(ctx.currentTime + (idx * 0.07) + 0.25);
+    });
+  },
   playGame: () => {
     const ctx = getAudioContext();
     const osc = ctx.createOscillator();
@@ -96,6 +112,53 @@ const playSFX = {
     osc.stop(ctx.currentTime + 0.1);
   }
 };
+
+// Global Floating Toast Generator
+export function triggerAchievementToast(title, description, isHardTier = false) {
+  let container = document.getElementById("achievement-toast-container");
+  if (!container) {
+    container = document.createElement("div");
+    container.id = "achievement-toast-container";
+    document.body.appendChild(container);
+  }
+
+  // Play achievement SFX
+  playSFX.achievement();
+
+  const toast = document.createElement("div");
+  toast.className = `achievement-toast ${isHardTier ? "hard-tier" : ""}`;
+  toast.innerHTML = `
+    <div class="toast-info">
+      <span class="toast-title">${title}</span>
+      <span class="toast-desc">${description}</span>
+    </div>
+    <span class="toast-badge locked">LOCKED</span>
+  `;
+
+  container.appendChild(toast);
+
+  // After 600ms (when slide-down finishes), transform badge to COMPLETED with pulse effect
+  setTimeout(() => {
+    const badge = toast.querySelector(".toast-badge");
+    if (badge) {
+      badge.textContent = "COMPLETED";
+      badge.className = `toast-badge completed-pop ${isHardTier ? "hard-tier-badge" : ""}`;
+    }
+  }, 600);
+
+  // After 3.8 seconds, fade out & descale
+  setTimeout(() => {
+    toast.classList.add("toast-hide");
+  }, 3800);
+
+  // Remove element completely after animation finishes
+  setTimeout(() => {
+    toast.remove();
+  }, 4200);
+}
+
+// Make globally available for subpages if needed
+window.triggerAchievementToast = triggerAchievementToast;
 
 // Global SFX Binding
 document.addEventListener("click", (e) => {
