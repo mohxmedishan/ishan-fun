@@ -1,0 +1,13 @@
+PRIVATE DEVELOPER MODE
+
+Snake developer tools are gated by BOTH:
+1. A Firebase Auth UID in snake/script.js DEV_UIDS.
+2. The URL query flag ?dev=1.
+
+After adding your UID, open Snake while logged in at:
+/snake/?dev=1
+
+The floating wrench button opens a draggable developer panel. The current test tool is:
+- Unlock Void Purple
+
+The test unlock is stored in localStorage as dev_void_purple and does not award the real SCP achievement.
