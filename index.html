@@ -8,10 +8,11 @@
 </head>
 <body>
 
-  <!-- Top Navbar (Restored Layout) -->
+  <!-- Top Navbar -->
   <nav class="navbar">
     <div id="logo" class="logo">Ishan.fun</div>
     <div class="nav-actions">
+      <button id="achievements-btn" class="nav-btn">🏅 Achievements</button>
       <button id="leaderboard-btn" class="nav-btn">🏆 Leaderboard</button>
       <div id="user-pill" class="user-pill">
         <span id="user-status">Not logged in</span>
@@ -49,6 +50,41 @@
   <audio id="bg-music" loop preload="auto">
     <source src="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3" type="audio/mpeg">
   </audio>
+
+  <!-- Achievements Modal -->
+  <div id="achievements-modal" class="modal-overlay">
+    <div class="modal-box achievements-box">
+      <button id="close-achievements-modal" class="close-btn">&times;</button>
+      <h2>🏅 Achievements</h2>
+      <p class="modal-sub">Complete challenges to earn PTS and HCP</p>
+
+      <ul id="achievements-list" class="achievements-list">
+        <!-- Button Smasher! (Normal) -->
+        <li class="achievement-item norm-tier completed">
+          <div class="ach-info">
+            <div class="ach-title-row">
+              <span class="ach-name">Button Smasher!</span>
+              <span class="ach-reward norm">+10 PTS</span>
+            </div>
+            <p class="ach-desc">Reach 1,000 raw clicks without rebirthing.</p>
+          </div>
+          <span class="ach-status status-completed">COMPLETED</span>
+        </li>
+
+        <!-- Hardcore Survivor (Hard) -->
+        <li class="achievement-item hard-tier">
+          <div class="ach-info">
+            <div class="ach-title-row">
+              <span class="ach-name">Hardcore Survivor</span>
+              <span class="ach-reward hard">+5 HCP</span>
+            </div>
+            <p class="ach-desc">Reach 100 Hardcore Mode clicks.</p>
+          </div>
+          <span class="ach-status status-locked">LOCKED</span>
+        </li>
+      </ul>
+    </div>
+  </div>
 
   <!-- Auth Modal -->
   <div id="auth-modal" class="modal-overlay">
