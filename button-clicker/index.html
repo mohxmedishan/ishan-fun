@@ -20,9 +20,28 @@
   </nav>
 
   <main class="game-container">
-    <div class="game-box">
+    <!-- Difficulty Selection Screen -->
+    <div id="difficulty-screen" class="game-box">
       <h1>Button Clicker</h1>
-      <p class="game-sub">Click to gain points and reach Rebirths!</p>
+      <p class="game-sub">Select your game mode to begin.</p>
+      
+      <div class="mode-select-grid">
+        <button id="select-normal-btn" class="mode-card">
+          <span class="mode-title">Normal Mode</span>
+          <span class="mode-desc">Standard click multiplier per Rebirth (1x, 2x, 3x, etc.).</span>
+        </button>
+        <button id="select-hardcore-btn" class="mode-card hardcore-card">
+          <span class="mode-title">Hardcore Mode</span>
+          <span class="mode-desc">Diminishing returns per Rebirth (1x → 0.75x → 0.5x → 0.25x → 0.125x → 0.1x).</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Active Gameplay Screen -->
+    <div id="gameplay-screen" class="game-box hidden">
+      <div class="header-row">
+        <span id="current-mode-tag" class="mode-tag">NORMAL MODE</span>
+      </div>
 
       <div class="stats-row">
         <div class="stat-card">
@@ -31,17 +50,46 @@
         </div>
         <div class="stat-card">
           <span class="stat-label">Rebirths</span>
-          <span id="rebirth-count" class="stat-value">0</span>
-        </div>
-        <div class="stat-card">
-          <span class="stat-label">Hardcore Clicks</span>
-          <span id="hardcore-count" class="stat-value">0</span>
+          <span id="rebirth-count" class="stat-value">0 / 5</span>
         </div>
       </div>
 
       <button id="main-click-btn" class="click-btn">CLICK ME!</button>
-      <button id="hardcore-click-btn" class="click-btn hardcore-btn">HARDCORE CLICK</button>
-      <button id="rebirth-btn" class="rebirth-btn">Rebirth (Requires 1,000 Clicks)</button>
+
+      <!-- Dynamic Progress / Action Area -->
+      <div class="action-wrapper">
+        <div id="progress-container" class="progress-container hidden">
+          <div class="progress-bar-bg">
+            <div id="progress-fill" class="progress-fill" style="width: 0%;"></div>
+          </div>
+          <span id="progress-text" class="progress-text">0 / 100 Clicks to Rebirth</span>
+        </div>
+
+        <button id="rebirth-btn" class="rebirth-btn hidden">Rebirth Now!</button>
+        <button id="finish-btn" class="finish-btn hidden">Finish Game!</button>
+      </div>
+    </div>
+
+    <!-- Game Over Screen -->
+    <div id="gameover-screen" class="game-box hidden">
+      <h1>Game Complete!</h1>
+      <p id="gameover-sub" class="game-sub">You have successfully mastered Button Clicker!</p>
+      
+      <div class="stats-summary">
+        <div class="stat-card">
+          <span class="stat-label">Final Clicks</span>
+          <span id="final-clicks" class="stat-value">0</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Mode Completed</span>
+          <span id="final-mode" class="stat-value">NORMAL</span>
+        </div>
+      </div>
+
+      <div class="gameover-actions">
+        <button id="play-again-btn" class="action-btn primary">Play Again</button>
+        <a href="../index.html" class="action-btn secondary">Back to Home</a>
+      </div>
     </div>
   </main>
 
