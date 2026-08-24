@@ -1,1 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Elemental Battle | Ishan.fun</title>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="achievement-toast-container"></div>
 
+  <nav class="navbar">
+    <a href="../index.html" class="logo">Ishan.fun</a>
+    <div class="nav-actions">
+      <a href="../index.html" class="nav-btn">← Back to Hub</a>
+    </div>
+  </nav>
+
+  <main class="game-container">
+    <!-- Difficulty selection -->
+    <section id="difficulty-screen" class="game-box">
+      <div class="game-heading">
+        <span class="eyebrow">⚔️ Ishan.fun Arcade</span>
+        <h1>Elemental Battle</h1>
+        <p class="game-sub">Choose your element. Outsmart the bot. First to lose all 3 lives loses.</p>
+      </div>
+
+      <div class="mode-select-grid">
+        <button id="select-normal-btn" class="mode-card">
+          <span class="mode-icon">🧠</span>
+          <span class="mode-title">Normal</span>
+          <span class="mode-desc">The bot watches your habits and gradually adapts to the choices you make.</span>
+          <span class="mode-hint">Adaptive opponent</span>
+        </button>
+
+        <button id="select-hardcore-btn" class="mode-card hardcore-card">
+          <span class="mode-icon">☠️</span>
+          <span class="mode-title">Hardcore</span>
+          <span class="mode-desc">The bot predicts your next move and counters it. It has only a 10% chance of being wrong.</span>
+          <span class="mode-hint">Brutal prediction</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- Battle arena -->
+    <section id="gameplay-screen" class="game-box hidden">
+      <div class="header-row">
+        <span id="current-mode-tag" class="mode-tag">NORMAL</span>
+        <span id="round-label" class="round-label">ROUND 1</span>
+      </div>
+
+      <div class="battle-card">
+        <div class="battle-top">
+          <div class="fighter">
+            <span class="fighter-label">YOU</span>
+            <div id="player-element" class="fighter-element">?</div>
+          </div>
+
+          <div id="vs-badge" class="vs-badge">VS</div>
+
+          <div class="fighter">
+            <span class="fighter-label">BOT</span>
+            <div id="bot-element" class="fighter-element">?</div>
+          </div>
+        </div>
+
+        <div id="battle-message" class="battle-message">
+          <strong>Choose your element</strong>
+          <span>Three lives each. First to 0 loses.</span>
+        </div>
+
+        <div class="lives-row">
+          <div class="life-block">
+            <span>YOU</span>
+            <div id="player-lives" class="hearts">♥ ♥ ♥</div>
+          </div>
+
+          <div class="score-block">
+            <span>ROUND SCORE</span>
+            <strong id="round-score">0 - 0</strong>
+          </div>
+
+          <div class="life-block bot-life-block">
+            <span>BOT</span>
+            <div id="bot-lives" class="hearts">♥ ♥ ♥</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="choice-area">
+        <p id="choice-prompt">Choose your element</p>
+
+        <div class="element-grid">
+          <button class="element-btn fire" data-element="fire">
+            <span class="element-emoji">🔥</span>
+            <span class="element-name">Fire</span>
+            <span class="element-desc">Beats Nature</span>
+          </button>
+
+          <button class="element-btn nature" data-element="nature">
+            <span class="element-emoji">🌿</span>
+            <span class="element-name">Nature</span>
+            <span class="element-desc">Beats Water</span>
+          </button>
+
+          <button class="element-btn water" data-element="water">
+            <span class="element-emoji">💧</span>
+            <span class="element-name">Water</span>
+            <span class="element-desc">Beats Fire</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="battle-actions">
+        <button id="restart-battle-btn" class="action-btn secondary">Restart Battle</button>
+        <button id="leave-battle-btn" class="action-btn secondary">Back to Modes</button>
+      </div>
+    </section>
+
+    <!-- Result -->
+    <section id="result-screen" class="game-box hidden">
+      <div id="result-icon" class="result-icon">🏆</div>
+      <span class="eyebrow">BATTLE COMPLETE</span>
+      <h1 id="result-title">Victory!</h1>
+      <p id="result-sub" class="game-sub">You won the Elemental Battle.</p>
+
+      <div class="result-summary">
+        <div class="stat-card">
+          <span class="stat-label">Result</span>
+          <span id="result-record" class="stat-value">3 - 0</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Reward</span>
+          <span id="result-reward" class="stat-value">+5 PTS</span>
+        </div>
+      </div>
+
+      <div class="result-actions">
+        <button id="play-again-btn" class="action-btn primary">Play Again</button>
+        <a href="../index.html" class="action-btn secondary">Back to Hub</a>
+      </div>
+    </section>
+  </main>
+
+  <script type="module" src="script.js"></script>
+</body>
+</html>
