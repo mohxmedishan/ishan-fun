@@ -22,6 +22,89 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const googleProvider = new GoogleAuthProvider();
 
+// Web Audio API Synthesizer (Instant Lag-Free SFX)
+let audioCtx = null;
+
+function getAudioContext() {
+  if (!audioCtx) {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  }
+  if (audioCtx.state === 'suspended') {
+    audioCtx.resume();
+  }
+  return audioCtx;
+}
+
+// SFX Generator Functions
+const playSFX = {
+  click: () => {
+    const ctx = getAudioContext();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(600, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(150, ctx.currentTime + 0.05);
+    gain.gain.setValueAtTime(0.15, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.05);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.05);
+  },
+  logo: () => {
+    const ctx = getAudioContext();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = "triangle";
+    osc.frequency.setValueAtTime(440, ctx.currentTime);
+    osc.frequency.setValueAtTime(880, ctx.currentTime + 0.06);
+    gain.gain.setValueAtTime(0.12, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.12);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.12);
+  },
+  loginSuccess: () => {
+    const ctx = getAudioContext();
+    const notes = [523.25, 659.25, 783.99]; // C5, E5, G5 Major Arpeggio
+    notes.forEach((freq, idx) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(freq, ctx.currentTime + (idx * 0.08));
+      gain.gain.setValueAtTime(0.15, ctx.currentTime + (idx * 0.08));
+      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + (idx * 0.08) + 0.15);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(ctx.currentTime + (idx * 0.08));
+      osc.stop(ctx.currentTime + (idx * 0.08) + 0.15);
+    });
+  },
+  playGame: () => {
+    const ctx = getAudioContext();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(300, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(80, ctx.currentTime + 0.1);
+    gain.gain.setValueAtTime(0.2, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.1);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.1);
+  }
+};
+
+// Global SFX Binding to all standard buttons
+document.addEventListener("click", (e) => {
+  const target = e.target.closest("button, .nav-btn, .action-btn, .close-btn");
+  if (target && target.id !== "logo" && !target.classList.contains("sfx-link")) {
+    playSFX.click();
+  }
+});
+
 // DOM Elements
 const logoBtn = document.getElementById("logo");
 const authModal = document.getElementById("auth-modal");
@@ -42,10 +125,40 @@ const myNameEl = document.getElementById("my-name");
 const myPtsEl = document.getElementById("my-pts");
 const myHcEl = document.getElementById("my-hc");
 
+const musicFab = document.getElementById("music-fab");
+const bgMusic = document.getElementById("bg-music");
+const musicIcon = document.getElementById("music-icon");
+
 let cachedUsername = "Player";
 
-// Brand Refresh Click
-logoBtn?.addEventListener("click", () => window.location.reload());
+// Background Music Toggle (Bottom-Right FAB)
+if (bgMusic && musicFab) {
+  bgMusic.volume = 0.2;
+
+  musicFab.addEventListener("click", () => {
+    if (bgMusic.paused) {
+      bgMusic.play().then(() => {
+        musicFab.classList.add("playing");
+        musicIcon.textContent = "🔊";
+      }).catch(err => console.warn("Audio autoplay blocked:", err));
+    } else {
+      bgMusic.pause();
+      musicFab.classList.remove("playing");
+      musicIcon.textContent = "🎵";
+    }
+  });
+}
+
+// Play Link SFX
+document.querySelectorAll(".sfx-link").forEach(link => {
+  link.addEventListener("click", () => playSFX.playGame());
+});
+
+// Brand Logo Refresh
+logoBtn?.addEventListener("click", () => {
+  playSFX.logo();
+  setTimeout(() => window.location.reload(), 120);
+});
 
 // Modal Controls
 openAuthBtn?.addEventListener("click", () => authModal.classList.add("active"));
@@ -138,7 +251,11 @@ onAuthStateChanged(auth, async (user) => {
       heroSubtitle.textContent = `🔥 Welcome back, ${cachedUsername}! Compete with top players on the leaderboard.`;
     }
 
-    if (authModal) authModal.classList.remove("active");
+    // Play Victory SFX on Login & Dismiss Modal
+    if (authModal && authModal.classList.contains("active")) {
+      playSFX.loginSuccess();
+      authModal.classList.remove("active");
+    }
   } else {
     cachedUsername = "Player";
     if (statusEl) statusEl.textContent = "Not logged in";
@@ -151,7 +268,7 @@ onAuthStateChanged(auth, async (user) => {
   }
 });
 
-// FETCH LEADERBOARD WITH VISIBILITY CHECK
+// FETCH LEADERBOARD
 async function fetchLeaderboard() {
   if (!leaderboardList) return;
   leaderboardList.innerHTML = '<li class="loading-item">Loading leaderboard...</li>';
@@ -206,13 +323,11 @@ async function fetchLeaderboard() {
         currentUserRank = "50+";
       }
 
-      // Populate Pinned Bar
       myRankEl.textContent = `#${currentUserRank}`;
       myNameEl.textContent = currentUserData.name;
       myPtsEl.textContent = `${currentUserData.pts} pts`;
       myHcEl.textContent = `${currentUserData.hcPts} HCP`;
 
-      // Helper to calculate visibility within the scroll box
       const updateRankBarVisibility = () => {
         if (!myUserElement) {
           personalRankBar.style.display = "flex";
@@ -230,7 +345,6 @@ async function fetchLeaderboard() {
         personalRankBar.style.display = isVisible ? "none" : "flex";
       };
 
-      // Initial visibility check & scroll observer
       updateRankBarVisibility();
       leaderboardList.onscroll = updateRankBarVisibility;
     }
@@ -239,26 +353,4 @@ async function fetchLeaderboard() {
     console.error("Leaderboard fetch error:", err);
     leaderboardList.innerHTML = '<li class="loading-item">Failed to load leaderboard.</li>';
   }
-}
-// Background Music Control
-const bgMusic = document.getElementById("bg-music");
-const musicToggleBtn = document.getElementById("music-toggle-btn");
-
-if (bgMusic && musicToggleBtn) {
-  bgMusic.volume = 0.25; // Set soft ambient background volume (25%)
-
-  musicToggleBtn.addEventListener("click", () => {
-    if (bgMusic.paused) {
-      bgMusic.play().then(() => {
-        musicToggleBtn.textContent = "🔊 Music: On";
-        musicToggleBtn.classList.add("active-music");
-      }).catch(err => {
-        console.warn("Audio play blocked by browser policy:", err);
-      });
-    } else {
-      bgMusic.pause();
-      musicToggleBtn.textContent = "🎵 Music: Off";
-      musicToggleBtn.classList.remove("active-music");
-    }
-  });
 }
