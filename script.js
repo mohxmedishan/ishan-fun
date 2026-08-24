@@ -198,12 +198,14 @@ const closeAuthBtn = document.getElementById("close-auth-modal");
 const leaderboardBtn = document.getElementById("leaderboard-btn");
 const closeLbBtn = document.getElementById("close-lb-modal");
 const achievementsBtn = document.getElementById("achievements-btn");
+const heroAchievementsBtn = document.getElementById("hero-achievements");
 const closeAchBtn = document.getElementById("close-achievements-modal");
 
 const statusEl = document.getElementById("user-status");
 const logoutBtn = document.getElementById("logout-btn");
 const heroSubtitle = document.getElementById("hero-subtitle");
 const leaderboardList = document.getElementById("leaderboard-list");
+const miniProfile = document.getElementById("mini-profile");
 
 const personalRankBar = document.getElementById("personal-rank-bar");
 const myRankEl = document.getElementById("my-rank");
@@ -250,21 +252,23 @@ function checkAchievementProgress() {
   }
 }
 
-// Background Music Controller
+// Shared Background Music Controller
+const MUSIC_KEY = "ishan_fun_music_enabled";
 if (bgMusic && musicFab) {
   bgMusic.volume = 0.2;
-
-  musicFab.addEventListener("click", () => {
+  const musicEnabled = localStorage.getItem(MUSIC_KEY) === "true";
+  function syncMusicUI(on) {
+    musicFab.classList.toggle("playing", on);
+    if (musicIcon) musicIcon.textContent = on ? "🔊" : "🎵";
+  }
+  syncMusicUI(musicEnabled);
+  if (musicEnabled) bgMusic.play().catch(() => {});
+  musicFab.addEventListener("click", async () => {
     if (bgMusic.paused) {
-      bgMusic.play().then(() => {
-        musicFab.classList.add("playing");
-        musicIcon.textContent = "🔊";
-      }).catch(err => console.warn("Audio autoplay blocked:", err));
+      try { await bgMusic.play(); localStorage.setItem(MUSIC_KEY, "true"); syncMusicUI(true); }
+      catch (err) { console.warn("Music playback blocked:", err); }
     } else {
-      bgMusic.pause();
-      musicFab.classList.remove("playing");
-      musicIcon.textContent = "🎵";
-    }
+      bgMusic.pause(); localStorage.setItem(MUSIC_KEY, "false"); syncMusicUI(false); }
   });
 }
 
@@ -288,6 +292,8 @@ leaderboardBtn?.addEventListener("click", () => {
   fetchLeaderboard();
 });
 closeLbBtn?.addEventListener("click", () => lbModal.classList.remove("active"));
+
+heroAchievementsBtn?.addEventListener("click", () => { checkAchievementProgress(); achModal.classList.add("active"); });
 
 achievementsBtn?.addEventListener("click", () => {
   checkAchievementProgress();
@@ -370,6 +376,7 @@ onAuthStateChanged(auth, async (user) => {
     }
 
     if (statusEl) statusEl.textContent = cachedUsername;
+    if (miniProfile) miniProfile.textContent = cachedUsername;
     if (openAuthBtn) openAuthBtn.style.display = "none";
     if (logoutBtn) logoutBtn.style.display = "inline-block";
 
@@ -383,6 +390,7 @@ onAuthStateChanged(auth, async (user) => {
     }
   } else {
     cachedUsername = "Player";
+    if (miniProfile) miniProfile.textContent = "Not logged in";
     if (statusEl) statusEl.textContent = "Not logged in";
     if (openAuthBtn) openAuthBtn.style.display = "inline-block";
     if (logoutBtn) logoutBtn.style.display = "none";
