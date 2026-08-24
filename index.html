@@ -19,6 +19,17 @@
         <button id="logout-btn" class="nav-btn danger" style="display: none;">Log Out</button>
       </div>
     </div>
+    <!-- Inside <nav class="navbar"> right next to the Leaderboard button -->
+<div class="nav-actions">
+  <button id="music-toggle-btn" class="nav-btn">🎵 Music: Off</button>
+  <button id="leaderboard-btn" class="nav-btn">🏆 Leaderboard</button>
+  ...
+</div>
+
+<!-- Add this audio element near the bottom of index.html before script.js -->
+<audio id="bg-music" loop preload="auto">
+  <source src="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3" type="audio/mpeg">
+</audio>
   </nav>
 
   <!-- Hero / Games Section -->
