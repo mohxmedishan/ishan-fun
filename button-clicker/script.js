@@ -17,32 +17,52 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 
 let currentUser = null;
-onAuthStateChanged(auth, (user) => {
-  currentUser = user;
-});
+onAuthStateChanged(auth, (user) => { currentUser = user; });
 
-let clicks = parseInt(localStorage.getItem("clicker_clicks") || "0");
-let rebirths = parseInt(localStorage.getItem("clicker_rebirths") || "0");
-let hardcoreClicks = parseInt(localStorage.getItem("clicker_hardcore") || "0");
+// Game State
+let isHardcore = false;
+let clicks = 0;
+let totalRawClicksThisRun = 0;
+let rebirths = 0;
+const REBIRTH_TARGET = 100;
+const MAX_REBIRTHS = 5;
 
-const clickEl = document.getElementById("click-count");
-const rebirthEl = document.getElementById("rebirth-count");
-const hardcoreEl = document.getElementById("hardcore-count");
-
-const clickBtn = document.getElementById("main-click-btn");
-const hardcoreBtn = document.getElementById("hardcore-click-btn");
-const rebirthBtn = document.getElementById("rebirth-btn");
-
+// Audio Synthesizer
 let audioCtx = null;
-
 function getAudioContext() {
-  if (!audioCtx) {
-    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  }
-  if (audioCtx.state === 'suspended') {
-    audioCtx.resume();
-  }
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
   return audioCtx;
+}
+
+function playClickSFX() {
+  const ctx = getAudioContext();
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = "sine";
+  osc.frequency.setValueAtTime(400 + (clicks % 200), ctx.currentTime);
+  gain.gain.setValueAtTime(0.1, ctx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.05);
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+  osc.start();
+  osc.stop(ctx.currentTime + 0.05);
+}
+
+function playRebirthSFX() {
+  const ctx = getAudioContext();
+  const notes = [300, 450, 600, 800];
+  notes.forEach((freq, i) => {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.frequency.setValueAtTime(freq, ctx.currentTime + (i * 0.06));
+    gain.gain.setValueAtTime(0.15, ctx.currentTime + (i * 0.06));
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + (i * 0.06) + 0.2);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(ctx.currentTime + (i * 0.06));
+    osc.stop(ctx.currentTime + (i * 0.06) + 0.2);
+  });
 }
 
 function playAchievementSFX() {
@@ -62,6 +82,7 @@ function playAchievementSFX() {
   });
 }
 
+// Toast Notification
 function triggerAchievementToast(title, description, isHardTier = false) {
   let container = document.getElementById("achievement-toast-container");
   if (!container) {
@@ -92,21 +113,11 @@ function triggerAchievementToast(title, description, isHardTier = false) {
     }
   }, 600);
 
-  setTimeout(() => {
-    toast.classList.add("toast-hide");
-  }, 3800);
-
-  setTimeout(() => {
-    toast.remove();
-  }, 4200);
+  setTimeout(() => { toast.classList.add("toast-hide"); }, 3800);
+  setTimeout(() => { toast.remove(); }, 4200);
 }
 
-function updateUI() {
-  if (clickEl) clickEl.textContent = clicks.toLocaleString();
-  if (rebirthEl) rebirthEl.textContent = rebirths.toLocaleString();
-  if (hardcoreEl) hardcoreEl.textContent = hardcoreClicks.toLocaleString();
-}
-
+// Firestore Points Sync
 async function awardPoints(pts, hcPts) {
   if (!currentUser) return;
   try {
@@ -116,50 +127,152 @@ async function awardPoints(pts, hcPts) {
       hcPoints: increment(hcPts)
     });
   } catch (err) {
-    console.error("Failed to sync achievement points:", err);
+    console.error("Failed to sync points:", err);
   }
 }
 
-function checkAchievements() {
-  // Check 'Button Smasher!' (1,000 clicks in a single un-rebirthed run)
-  if (clicks >= 1000 && rebirths === 0 && localStorage.getItem("ach_button_smasher") !== "true") {
+// Multiplier Calculation
+function getClickIncrement() {
+  if (!isHardcore) {
+    return 1 + rebirths; // Normal Mode: 1x, 2x, 3x, etc.
+  }
+  
+  // Hardcore Mode Diminishing Returns: 1, 0.75, 0.5, 0.25, 0.125, 0.1
+  const hardcoreRates = [1, 0.75, 0.5, 0.25, 0.125, 0.1];
+  return hardcoreRates[Math.min(rebirths, hardcoreRates.length - 1)];
+}
+
+// UI & Animations Handler
+const diffScreen = document.getElementById("difficulty-screen");
+const gameScreen = document.getElementById("gameplay-screen");
+const gameoverScreen = document.getElementById("gameover-screen");
+
+const clickEl = document.getElementById("click-count");
+const rebirthEl = document.getElementById("rebirth-count");
+const clickBtn = document.getElementById("main-click-btn");
+const modeTag = document.getElementById("current-mode-tag");
+
+const progressContainer = document.getElementById("progress-container");
+const progressFill = document.getElementById("progress-fill");
+const progressText = document.getElementById("progress-text");
+const rebirthBtn = document.getElementById("rebirth-btn");
+const finishBtn = document.getElementById("finish-btn");
+
+function updateUI() {
+  clickEl.textContent = clicks.toLocaleString(undefined, { maximumFractionDigits: 3 });
+  rebirthEl.textContent = `${rebirths} / ${MAX_REBIRTHS}`;
+
+  if (clicks > 0 && rebirthBtn.classList.contains("hidden") && finishBtn.classList.contains("hidden")) {
+    progressContainer.classList.remove("hidden");
+  }
+
+  const progressPercent = Math.min(100, (clicks / REBIRTH_TARGET) * 100);
+  progressFill.style.width = `${progressPercent}%`;
+  progressText.textContent = `${Math.floor(clicks)} / ${REBIRTH_TARGET} Clicks to Rebirth`;
+
+  if (clicks >= REBIRTH_TARGET) {
+    if (!progressContainer.classList.contains("hidden")) {
+      progressContainer.classList.add("fade-out-scale");
+      setTimeout(() => {
+        progressContainer.classList.add("hidden");
+        progressContainer.classList.remove("fade-out-scale");
+
+        if (rebirths >= MAX_REBIRTHS) {
+          finishBtn.classList.remove("hidden");
+        } else {
+          rebirthBtn.classList.remove("hidden");
+        }
+      }, 300);
+    }
+  }
+}
+
+// Game Mode Initialization
+function startGame(hardcore) {
+  isHardcore = hardcore;
+  clicks = 0;
+  totalRawClicksThisRun = 0;
+  rebirths = 0;
+
+  modeTag.textContent = isHardcore ? "HARDCORE MODE" : "NORMAL MODE";
+  if (isHardcore) {
+    modeTag.classList.add("hardcore");
+  } else {
+    modeTag.classList.remove("hardcore");
+  }
+
+  diffScreen.classList.add("hidden");
+  gameoverScreen.classList.add("hidden");
+  gameScreen.classList.remove("hidden");
+
+  rebirthBtn.classList.add("hidden");
+  finishBtn.classList.add("hidden");
+  progressContainer.classList.add("hidden");
+
+  updateUI();
+}
+
+// Click Triggering (Touch & Press Support)
+function handleMainClick(e) {
+  if (e) e.preventDefault();
+  playClickSFX();
+
+  clicks += getClickIncrement();
+  totalRawClicksThisRun++;
+
+  // Visual active trigger for soft taps/key releases
+  clickBtn.classList.add("is-active");
+  setTimeout(() => clickBtn.classList.remove("is-active"), 80);
+
+  // Check Achievement: 'Button Smasher!' (1,000 raw clicks without rebirthing)
+  if (totalRawClicksThisRun >= 1000 && rebirths === 0 && localStorage.getItem("ach_button_smasher") !== "true") {
     localStorage.setItem("ach_button_smasher", "true");
     triggerAchievementToast("Button Smasher!", "Reach 1,000 clicks in a single un-rebirthed run.", false);
     awardPoints(10, 0);
   }
 
-  // Check 'Hardcore Survivor' (100 Hardcore clicks)
-  if (hardcoreClicks >= 100 && localStorage.getItem("ach_hardcore_survivor") !== "true") {
-    localStorage.setItem("ach_hardcore_survivor", "true");
-    triggerAchievementToast("Hardcore Survivor", "Reach 100 Hardcore Mode clicks.", true);
-    awardPoints(0, 5);
-  }
+  updateUI();
 }
 
-clickBtn?.addEventListener("click", () => {
-  clicks++;
-  localStorage.setItem("clicker_clicks", clicks);
-  updateUI();
-  checkAchievements();
-});
+clickBtn.addEventListener("pointerdown", handleMainClick);
 
-hardcoreBtn?.addEventListener("click", () => {
-  hardcoreClicks++;
-  localStorage.setItem("clicker_hardcore", hardcoreClicks);
-  updateUI();
-  checkAchievements();
-});
+// Rebirth Action
+rebirthBtn.addEventListener("click", () => {
+  playRebirthSFX();
+  rebirths++;
+  clicks = 0;
 
-rebirthBtn?.addEventListener("click", () => {
-  if (clicks >= 1000) {
-    clicks = 0;
-    rebirths++;
-    localStorage.setItem("clicker_clicks", clicks);
-    localStorage.setItem("clicker_rebirths", rebirths);
+  rebirthBtn.classList.add("fade-out-scale");
+  setTimeout(() => {
+    rebirthBtn.classList.add("hidden");
+    rebirthBtn.classList.remove("fade-out-scale");
+    progressContainer.classList.remove("hidden");
     updateUI();
-  } else {
-    alert("You need at least 1,000 clicks to Rebirth!");
-  }
+  }, 300);
 });
 
-updateUI();
+// Finish Game Action
+finishBtn.addEventListener("click", () => {
+  playAchievementSFX();
+  
+  document.getElementById("final-clicks").textContent = clicks.toLocaleString(undefined, { maximumFractionDigits: 3 });
+  document.getElementById("final-mode").textContent = isHardcore ? "HARDCORE" : "NORMAL";
+
+  // Check Achievement: 'Hardcore Player' (Beat any game in Hardcore Mode)
+  if (isHardcore && localStorage.getItem("ach_hardcore_player") !== "true") {
+    localStorage.setItem("ach_hardcore_player", "true");
+    triggerAchievementToast("Hardcore Player", "Beat any game in Hardcore Mode.", true);
+    awardPoints(0, 5);
+  }
+
+  gameScreen.classList.add("hidden");
+  gameoverScreen.classList.remove("hidden");
+});
+
+// Button Setup
+document.getElementById("select-normal-btn").addEventListener("click", () => startGame(false));
+document.getElementById("select-hardcore-btn").addEventListener("click", () => startGame(true));
+document.getElementById("play-again-btn").addEventListener("click", () => {
+  gameoverScreen.classList.add("hidden");
+  diffScreen.classList.remove("hidden");
+});
