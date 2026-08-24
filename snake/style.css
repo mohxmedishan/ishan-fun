@@ -31,3 +31,14 @@ html,body{min-height:100%;overflow-x:hidden;overflow-y:auto}.game-container{min-
 @media(max-width:480px){
   .picker-grid.skins,.picker-grid.fruits{grid-template-columns:repeat(3,1fr);}
 }
+
+/* Update: rainbow power-up and secret dimension */
+.picker-grid.skins{grid-template-columns:repeat(4,1fr)}
+.snake-swatch.rainbow .swatch{background:conic-gradient(from 0deg,#ff2d55,#ff8a00,#ffe600,#22e67a,#00cfff,#7c4dff,#ff2d55);box-shadow:0 0 18px rgba(168,85,247,.5),0 0 30px rgba(34,211,238,.2);animation:rainbowSpin 3s linear infinite}
+.snake-swatch.phase-purple .swatch{background:#a855f7;box-shadow:0 0 18px rgba(168,85,247,.8),inset 0 0 8px rgba(255,255,255,.25)}
+.mode-tag.secret-tier{color:#d8b4fe;background:rgba(168,85,247,.14);border-color:rgba(168,85,247,.45);box-shadow:0 0 22px rgba(168,85,247,.18)}
+.victory-badge{font-size:.7rem;font-weight:950;letter-spacing:2.5px;color:#4ade80;padding:7px 12px;border:1px solid rgba(74,222,128,.28);background:rgba(74,222,128,.08);border-radius:999px;box-shadow:0 0 24px rgba(74,222,128,.1)}
+.victory-badge.secret{color:#d8b4fe;border-color:rgba(168,85,247,.45);background:rgba(168,85,247,.12);box-shadow:0 0 28px rgba(168,85,247,.22)}
+@keyframes rainbowSpin{to{filter:hue-rotate(360deg)}}
+@media(max-width:700px){.picker-grid.skins{grid-template-columns:repeat(4,1fr)}}
+@media(max-width:480px){.picker-grid.skins{grid-template-columns:repeat(3,1fr)}}
