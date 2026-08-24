@@ -375,16 +375,19 @@ body {
   padding-right: 4px;
 }
 
-.leaderboard-list::-webkit-scrollbar {
+.leaderboard-list::-webkit-scrollbar,
+.achievements-list::-webkit-scrollbar {
   width: 6px;
 }
 
-.leaderboard-list::-webkit-scrollbar-track {
+.leaderboard-list::-webkit-scrollbar-track,
+.achievements-list::-webkit-scrollbar-track {
   background: rgba(255, 255, 255, 0.02);
   border-radius: 4px;
 }
 
-.leaderboard-list::-webkit-scrollbar-thumb {
+.leaderboard-list::-webkit-scrollbar-thumb,
+.achievements-list::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.15);
   border-radius: 4px;
 }
@@ -454,4 +457,94 @@ body {
   flex-grow: 1;
   color: #ffffff;
   font-weight: 700;
+}
+
+/* Achievements List Styling */
+.achievements-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 320px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.achievement-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.achievement-item.completed {
+  border: 1px solid rgba(74, 222, 128, 0.4);
+  background: rgba(74, 222, 128, 0.05);
+}
+
+.achievement-item.completed.hard-tier {
+  border: 1px solid rgba(255, 94, 0, 0.4);
+  background: rgba(255, 94, 0, 0.05);
+}
+
+.ach-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ach-title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ach-name {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #ffffff;
+}
+
+.ach-reward {
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+
+.ach-reward.norm {
+  background: rgba(74, 222, 128, 0.15);
+  color: #4ade80;
+}
+
+.ach-reward.hard {
+  background: rgba(255, 94, 0, 0.15);
+  color: #ff5e00;
+}
+
+.ach-desc {
+  font-size: 0.8rem;
+  color: #a1a1aa;
+}
+
+.ach-status {
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 6px 10px;
+  border-radius: 8px;
+  letter-spacing: 0.5px;
+}
+
+.status-completed {
+  background: #4ade80;
+  color: #000000;
+}
+
+.status-locked {
+  background: rgba(255, 255, 255, 0.08);
+  color: #71717a;
 }
