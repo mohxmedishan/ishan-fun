@@ -425,17 +425,30 @@ body {
 .personal-rank-bar .scores {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 6px;
 }
 
+/* Styled Score Pills to Match Achievement Badges */
 .score-norm {
-  font-weight: 700;
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: rgba(74, 222, 128, 0.15);
   color: #4ade80 !important;
+  border: 1px solid rgba(74, 222, 128, 0.3);
+  box-shadow: 0 0 10px rgba(74, 222, 128, 0.15);
 }
 
 .score-hc {
-  font-weight: 700;
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: rgba(255, 94, 0, 0.15);
   color: #ff5e00 !important;
+  border: 1px solid rgba(255, 94, 0, 0.3);
+  box-shadow: 0 0 10px rgba(255, 94, 0, 0.15);
 }
 
 /* Floating Personal Rank Bar */
@@ -522,11 +535,15 @@ body {
 .ach-reward.norm {
   background: rgba(74, 222, 128, 0.15);
   color: #4ade80;
+  border: 1px solid rgba(74, 222, 128, 0.3);
+  box-shadow: 0 0 8px rgba(74, 222, 128, 0.15);
 }
 
 .ach-reward.hard {
   background: rgba(255, 94, 0, 0.15);
   color: #ff5e00;
+  border: 1px solid rgba(255, 94, 0, 0.3);
+  box-shadow: 0 0 8px rgba(255, 94, 0, 0.15);
 }
 
 .ach-desc {
