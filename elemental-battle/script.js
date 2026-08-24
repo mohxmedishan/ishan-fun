@@ -343,26 +343,33 @@ async function playRound(playerChoice) {
   renderLives();
 }
 
-function broadcastAchievement(title, description, hard = false) {
+function broadcastAchievement(id, title, description, hard = false) {
   const event = {
+    id,
     title,
     description,
-    hard,
-    id: `${Date.now()}-${Math.random()}`
+    isHardTier: hard,
+    nonce: `${Date.now()}-${Math.random()}`
   };
 
   // Same-page toast.
-  showAchievementToast(event);
+  showAchievementToast({
+    title,
+    description,
+    hard
+  });
 
   // Other Ishan.fun tabs/pages.
   try {
-    const channel = new BroadcastChannel("ishan-achievements");
+    const channel = new BroadcastChannel("ishan-fun-achievements");
     channel.postMessage(event);
     channel.close();
   } catch {}
 
   // Fallback for browsers without BroadcastChannel.
-  localStorage.setItem("ishan-achievement-event", JSON.stringify(event));
+  try {
+    localStorage.setItem("ishan_fun_achievement_event", JSON.stringify(event));
+  } catch {}
 }
 
 function showAchievementToast({ title, description, hard = false }) {
@@ -410,6 +417,37 @@ window.addEventListener("storage", event => {
   } catch {}
 });
 
+async function awardAchievement(points, hcPoints) {
+  if (!state.currentUser) return;
+
+  try {
+    const userRef = doc(db, "users", state.currentUser.uid);
+    const rewards = {};
+    if (points) rewards.points = increment(points);
+    if (hcPoints) rewards.hcPoints = increment(hcPoints);
+    if (Object.keys(rewards).length) await updateDoc(userRef, rewards);
+  } catch (error) {
+    console.error("Could not update achievement reward:", error);
+  }
+}
+
+function checkHardcoreSlayer() {
+  if (
+    localStorage.getItem("ach_hardcore_button") === "true" &&
+    localStorage.getItem("ach_hardcore_elemental") === "true" &&
+    localStorage.getItem("ach_hardcore_slayer") !== "true"
+  ) {
+    localStorage.setItem("ach_hardcore_slayer", "true");
+    broadcastAchievement(
+      "hardcore-slayer",
+      "Hardcore Slayer",
+      "Beat 2 games on Hardcore Mode.",
+      true
+    );
+    awardAchievement(0, 5);
+  }
+}
+
 async function finishBattle(playerWon) {
   const hardcore = state.mode === "hardcore";
 
@@ -454,15 +492,51 @@ async function finishBattle(playerWon) {
     }
   }
 
+  // Achievement progress is recorded locally so it is only awarded once.
+  const noLivesLost = state.playerLives === 3;
+
+  if (playerWon && !hardcore && noLivesLost &&
+      localStorage.getItem("ach_elemental_master") !== "true") {
+    localStorage.setItem("ach_elemental_master", "true");
+    broadcastAchievement(
+      "elemental-master",
+      "Elemental Master",
+      "Beat Elemental Battle on Normal Mode without losing any lives."
+    );
+    await awardAchievement(10, 0);
+  }
+
   // Hardcore Survivor is earned by actually winning an Elemental Battle on Hardcore.
   if (playerWon && hardcore) {
-    localStorage.setItem("achievement-hardcore-survivor", "true");
+    if (localStorage.getItem("achievement-hardcore-survivor") !== "true") {
+      localStorage.setItem("achievement-hardcore-survivor", "true");
 
-    broadcastAchievement(
-      "Hardcore Survivor",
-      "You won an Elemental Battle on Hardcore.",
-      true
-    );
+      broadcastAchievement(
+        "hardcore-survivor",
+        "Hardcore Survivor",
+        "You won an Elemental Battle on Hardcore.",
+        true
+      );
+    }
+
+    // Elemental God requires a flawless Hardcore Elemental Battle.
+    if (noLivesLost &&
+        localStorage.getItem("ach_elemental_god") !== "true") {
+      localStorage.setItem("ach_elemental_god", "true");
+      broadcastAchievement(
+        "elemental-god",
+        "Elemental God",
+        "Beat Elemental Battle on Hardcore without losing any lives.",
+        true
+      );
+      await awardAchievement(0, 5);
+    }
+
+    // This game counts toward the two-hardcore-games achievement.
+    if (localStorage.getItem("ach_hardcore_elemental") !== "true") {
+      localStorage.setItem("ach_hardcore_elemental", "true");
+      checkHardcoreSlayer();
+    }
   }
 
   showScreen("result");
@@ -512,45 +586,3 @@ onAuthStateChanged(auth, async user => {
     }
   }
 });
-// Function to handle victory conditions and unlock achievements
-function checkGameAchievements(gameName, mode, livesLost) {
-  // 1. Elemental Master Check
-  if (gameName === "Elemental Battles" && mode === "normal" && livesLost === 0) {
-    unlockAchievement("elemental_master", 10, "PTS", "Elemental Master");
-  }
-
-  // 2. Elemental God Check
-  if (gameName === "Elemental Battles" && mode === "hardcore" && livesLost === 0) {
-    unlockAchievement("elemental_god", 5, "HCP", "Elemental God");
-  }
-
-  // 3. Hardcore Slayer Check
-  if (mode === "hardcore") {
-    let hardcoreWins = (parseInt(localStorage.getItem("hardcoreWins")) || 0) + 1;
-    localStorage.setItem("hardcoreWins", hardcoreWins);
-
-    if (hardcoreWins >= 2) {
-      unlockAchievement("hardcore_slayer", 5, "HCP", "Hardcore Slayer");
-    }
-  }
-}
-
-// Toast notification and reward dispenser function
-function unlockAchievement(achievementId, rewardAmount, rewardType, achievementTitle) {
-  if (localStorage.getItem(`ach_${achievementId}`)) return; // Already unlocked
-
-  // Mark as unlocked
-  localStorage.setItem(`ach_${achievementId}`, "true");
-
-  // Grant rewards
-  if (rewardType === "PTS") {
-    let pts = parseInt(localStorage.getItem("userPTS")) || 0;
-    localStorage.setItem("userPTS", pts + rewardAmount);
-  } else if (rewardType === "HCP") {
-    let hcp = parseInt(localStorage.getItem("userHCP")) || 0;
-    localStorage.setItem("userHCP", hcp + rewardAmount);
-  }
-
-  // Display Toast Notification
-  showToast(`Achievement Unlocked: ${achievementTitle}! (+${rewardAmount} ${rewardType})`);
-}
