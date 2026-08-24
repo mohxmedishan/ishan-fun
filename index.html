@@ -3,343 +3,145 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Ishan.fun | Hub</title>
+  <title>Ishan.fun</title>
   <link rel="stylesheet" href="style.css" />
-  <style>
-    /* Inline Styles for Achievements Grid & Cards */
-    .hub-container {
-      max-width: 900px;
-      margin: 40px auto;
-      padding: 0 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 32px;
-    }
-
-    .points-banner {
-      background: rgba(24, 24, 27, 0.8);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 20px;
-      padding: 24px;
-      display: flex;
-      justify-content: space-around;
-      align-items: center;
-      backdrop-filter: blur(12px);
-    }
-
-    .point-box {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 4px;
-    }
-
-    .point-label {
-      font-size: 0.75rem;
-      font-weight: 800;
-      color: #a1a1aa;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-
-    .point-val {
-      font-size: 2rem;
-      font-weight: 900;
-      color: #ffffff;
-    }
-
-    .point-val.hc {
-      color: #ff5e00;
-    }
-
-    .section-title-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 16px;
-    }
-
-    .section-title {
-      font-size: 1.4rem;
-      font-weight: 800;
-    }
-
-    .progress-tag {
-      font-size: 0.85rem;
-      color: #a1a1aa;
-      font-weight: 700;
-    }
-
-    .achievements-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 16px;
-    }
-
-    .achievement-card {
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 18px;
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      transition: transform 0.2s ease, border-color 0.2s ease;
-    }
-
-    .achievement-card:hover {
-      transform: translateY(-2px);
-      border-color: rgba(255, 255, 255, 0.2);
-    }
-
-    .achievement-card.hard-tier-card {
-      background: rgba(255, 94, 0, 0.04);
-      border-color: rgba(255, 94, 0, 0.15);
-    }
-
-    .achievement-card.unlocked {
-      border-color: rgba(74, 222, 128, 0.4);
-    }
-
-    .achievement-card.hard-tier-card.unlocked {
-      border-color: rgba(255, 94, 0, 0.5);
-    }
-
-    .card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .card-title {
-      font-weight: 800;
-      font-size: 1.05rem;
-      color: #ffffff;
-    }
-
-    .pts-tag {
-      font-size: 0.75rem;
-      font-weight: 800;
-      padding: 4px 8px;
-      border-radius: 6px;
-      background: rgba(74, 222, 128, 0.15);
-      color: #4ade80;
-    }
-
-    .hc-tag {
-      font-size: 0.75rem;
-      font-weight: 800;
-      padding: 4px 8px;
-      border-radius: 6px;
-      background: rgba(255, 94, 0, 0.15);
-      color: #ff5e00;
-    }
-
-    .card-desc {
-      font-size: 0.85rem;
-      color: #a1a1aa;
-      line-height: 1.4;
-    }
-
-    .card-footer {
-      display: flex;
-      justify-content: flex-end;
-      margin-top: auto;
-    }
-
-    .status-badge {
-      font-size: 0.7rem;
-      font-weight: 800;
-      padding: 4px 10px;
-      border-radius: 6px;
-      letter-spacing: 0.5px;
-    }
-
-    .badge-locked {
-      background: rgba(255, 255, 255, 0.08);
-      color: #71717a;
-    }
-
-    .badge-completed {
-      background: #4ade80;
-      color: #000000;
-    }
-
-    .hard-tier-card .badge-completed {
-      background: #ff5e00;
-      color: #ffffff;
-    }
-
-    .games-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 16px;
-    }
-
-    .game-card {
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 18px;
-      padding: 24px;
-      text-decoration: none;
-      color: inherit;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      transition: all 0.2s ease;
-    }
-
-    .game-card:hover {
-      background: rgba(255, 255, 255, 0.08);
-      transform: translateY(-3px);
-      border-color: rgba(255, 255, 255, 0.3);
-    }
-  </style>
+  <link rel="stylesheet" href="toast.css" />
 </head>
 <body>
 
+  <!-- Floating Toast Container -->
+  <div id="achievement-toast-container"></div>
+
+  <!-- Top Navbar -->
   <nav class="navbar">
-    <a href="index.html" class="logo">Ishan.fun</a>
+    <div id="logo" class="logo">Ishan.fun</div>
     <div class="nav-actions">
-      <a href="button-clicker/index.html" class="nav-btn">Play Games</a>
+      <button id="achievements-btn" class="nav-btn">🏅 Achievements</button>
+      <button id="leaderboard-btn" class="nav-btn">🏆 Leaderboard</button>
+      <div id="user-pill" class="user-pill">
+        <span id="user-status">Not logged in</span>
+        <button id="open-auth-btn" class="nav-btn primary">Log In</button>
+        <button id="logout-btn" class="nav-btn danger" style="display: none;">Log Out</button>
+      </div>
     </div>
   </nav>
 
-  <main class="hub-container">
-    <!-- Total Points Overview -->
-    <div class="points-banner">
-      <div class="point-box">
-        <span class="point-label">Total PTS</span>
-        <span id="total-pts" class="point-val">0</span>
-      </div>
-      <div class="point-box">
-        <span class="point-label">Hardcore Points</span>
-        <span id="total-hc-pts" class="point-val hc">0</span>
+  <!-- Hero / Games Section -->
+  <main class="main-container">
+    <header class="hero">
+      <h1>Play & Compete</h1>
+      <p id="hero-subtitle">Log in to save your PTS to the global leaderboard.</p>
+    </header>
+
+    <div class="games-grid">
+      <div class="game-card">
+        <div class="card-badge">HOT</div>
+        <h2>Button Clicker</h2>
+        <p>Click your way to 5 Rebirths and trigger the finish sequence!</p>
+        <div class="btn-wrapper">
+          <a href="./button-clicker/index.html" class="play-link sfx-link">Play Game</a>
+        </div>
       </div>
     </div>
-
-    <!-- Games Section -->
-    <section>
-      <div class="section-title-row">
-        <h2 class="section-title">Games</h2>
-      </div>
-      <div class="games-grid">
-        <a href="button-clicker/index.html" class="game-card">
-          <span style="font-weight: 800; font-size: 1.2rem;">Button Clicker</span>
-          <span style="font-size: 0.85rem; color: #a1a1aa;">Click to gain points, unlock Rebirths, or survive Hardcore Mode.</span>
-        </a>
-      </div>
-    </section>
-
-    <!-- Achievements Section -->
-    <section>
-      <div class="section-title-row">
-        <h2 class="section-title">Achievements</h2>
-        <span id="ach-progress-count" class="progress-tag">0 / 2 Completed</span>
-      </div>
-      <div id="achievements-grid" class="achievements-grid">
-        <!-- Rendered dynamically by script below -->
-      </div>
-    </section>
   </main>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-    import { getFirestore, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+  <!-- Floating Bottom-Right Music Button -->
+  <button id="music-fab" class="music-fab" title="Toggle Music">
+    <span id="music-icon">🎵</span>
+  </button>
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyC5c-np0wNIMkcowH4Rr1i5r3B2-qGY1e4",
-      authDomain: "ishan-fun.firebaseapp.com",
-      projectId: "ishan-fun",
-      storageBucket: "ishan-fun.firebasestorage.app",
-      messagingSenderId: "919307010777",
-      appId: "1:919307010777:web:35b659050c32e7c05c74c8",
-      measurementId: "G-S8H37T0FNX"
-    };
+  <!-- Background Music Audio Source -->
+  <audio id="bg-music" loop preload="auto">
+    <source src="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3" type="audio/mpeg">
+  </audio>
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
+  <!-- Achievements Modal -->
+  <div id="achievements-modal" class="modal-overlay">
+    <div class="modal-box modal-standard">
+      <button id="close-achievements-modal" class="close-btn">&times;</button>
+      <h2>🏅 Achievements</h2>
+      <p class="modal-sub">Complete challenges to earn PTS and HCP</p>
 
-    const ACHIEVEMENTS_LIST = [
-      {
-        id: "ach_button_smasher",
-        title: "Button Smasher!",
-        description: "Reach 1,000 clicks in a single un-rebirthed run.",
-        points: 10,
-        hcPoints: 0,
-        isHardTier: false
-      },
-      {
-        id: "ach_hardcore_player",
-        title: "Hardcore Player",
-        description: "Beat any game in Hardcore Mode.",
-        points: 0,
-        hcPoints: 5,
-        isHardTier: true
-      }
-    ];
-
-    const totalPtsEl = document.getElementById("total-pts");
-    const totalHcPtsEl = document.getElementById("total-hc-pts");
-    const gridContainer = document.getElementById("achievements-grid");
-
-    function renderAchievements() {
-      if (!gridContainer) return;
-      gridContainer.innerHTML = "";
-
-      let unlockedCount = 0;
-
-      ACHIEVEMENTS_LIST.forEach((ach) => {
-        const isUnlocked = localStorage.getItem(ach.id) === "true";
-        if (isUnlocked) unlockedCount++;
-
-        const card = document.createElement("div");
-        card.className = `achievement-card ${ach.isHardTier ? "hard-tier-card" : ""} ${isUnlocked ? "unlocked" : "locked"}`;
-
-        card.innerHTML = `
-          <div class="card-header">
-            <span class="card-title">${ach.title}</span>
-            <span class="reward-tag ${ach.isHardTier ? "hc-tag" : "pts-tag"}">
-              +${ach.isHardTier ? `${ach.hcPoints} HCP` : `${ach.points} PTS`}
-            </span>
+      <ul id="achievements-list" class="achievements-list">
+        <li id="ach-button-smasher" class="achievement-item norm-tier">
+          <div class="ach-info">
+            <div class="ach-title-row">
+              <span class="ach-name">Button Smasher!</span>
+              <span class="ach-reward norm">+10 PTS</span>
+            </div>
+            <p class="ach-desc">Reach 1,000 clicks in a single un-rebirthed run.</p>
           </div>
-          <p class="card-desc">${ach.description}</p>
-          <div class="card-footer">
-            <span class="status-badge ${isUnlocked ? "badge-completed" : "badge-locked"}">
-              ${isUnlocked ? "COMPLETED" : "LOCKED"}
-            </span>
+          <span class="ach-status status-locked">LOCKED</span>
+        </li>
+
+        <li id="ach-hardcore-survivor" class="achievement-item hard-tier">
+          <div class="ach-info">
+            <div class="ach-title-row">
+              <span class="ach-name">Hardcore Survivor</span>
+              <span class="ach-reward hard">+5 HCP</span>
+            </div>
+            <p class="ach-desc">Reach 100 Hardcore Mode clicks.</p>
           </div>
-        `;
+          <span class="ach-status status-locked">LOCKED</span>
+        </li>
+      </ul>
+    </div>
+  </div>
 
-        gridContainer.appendChild(card);
-      });
+  <!-- Auth Modal -->
+  <div id="auth-modal" class="modal-overlay">
+    <div class="modal-box modal-standard">
+      <button id="close-auth-modal" class="close-btn">&times;</button>
+      <h2>Join Ishan.fun</h2>
+      <p class="modal-sub">Create an account or log in to keep your PTS.</p>
 
-      const progressCountEl = document.getElementById("ach-progress-count");
-      if (progressCountEl) {
-        progressCountEl.textContent = `${unlockedCount} / ${ACHIEVEMENTS_LIST.length} Completed`;
-      }
-    }
+      <div class="auth-inputs">
+        <input type="text" id="username" placeholder="Username (for new accounts)" />
+        <input type="email" id="email" placeholder="Email address" />
+        <input type="password" id="password" placeholder="Password" />
+      </div>
 
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        const userRef = doc(db, "users", user.uid);
-        onSnapshot(userRef, (snapshot) => {
-          if (snapshot.exists()) {
-            const data = snapshot.data();
-            if (totalPtsEl) totalPtsEl.textContent = (data.points || 0).toLocaleString();
-            if (totalHcPtsEl) totalHcPtsEl.textContent = (data.hcPoints || 0).toLocaleString();
-          }
-        });
-      } else {
-        if (totalPtsEl) totalPtsEl.textContent = "0";
-        if (totalHcPtsEl) totalHcPtsEl.textContent = "0";
-      }
-      renderAchievements();
-    });
+      <div class="auth-action-btns">
+        <button id="signup-btn" class="action-btn">Create Account</button>
+        <button id="login-btn" class="action-btn secondary">Log In</button>
+      </div>
 
-    renderAchievements();
-  </script>
+      <div class="divider"><span>OR</span></div>
+
+      <button id="google-btn" class="google-btn">
+        <svg width="18" height="18" viewBox="0 0 18 18">
+          <path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844a4.14 4.14 0 0 1-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.616z"/>
+          <path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z"/>
+          <path fill="#FBBC05" d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z"/>
+          <path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z"/>
+        </svg>
+        Continue with Google
+      </button>
+    </div>
+  </div>
+
+  <!-- Leaderboard Modal -->
+  <div id="leaderboard-modal" class="modal-overlay">
+    <div class="modal-box modal-standard">
+      <button id="close-lb-modal" class="close-btn">&times;</button>
+      <h2>🏆 Global Leaderboard</h2>
+      <p class="modal-sub">Top players on Ishan.fun</p>
+
+      <ul id="leaderboard-list" class="leaderboard-list">
+        <li class="loading-item">Loading PTS...</li>
+      </ul>
+
+      <div id="personal-rank-bar" class="personal-rank-bar" style="display: none;">
+        <span id="my-rank" class="rank">#--</span>
+        <span id="my-name" class="name">Player</span>
+        <div class="scores">
+          <span id="my-pts" class="score-norm">0 PTS</span>
+          <span id="my-hc" class="score-hc">0 HCP</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="script.js"></script>
 </body>
 </html>
