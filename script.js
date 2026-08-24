@@ -240,3 +240,25 @@ async function fetchLeaderboard() {
     leaderboardList.innerHTML = '<li class="loading-item">Failed to load leaderboard.</li>';
   }
 }
+// Background Music Control
+const bgMusic = document.getElementById("bg-music");
+const musicToggleBtn = document.getElementById("music-toggle-btn");
+
+if (bgMusic && musicToggleBtn) {
+  bgMusic.volume = 0.25; // Set soft ambient background volume (25%)
+
+  musicToggleBtn.addEventListener("click", () => {
+    if (bgMusic.paused) {
+      bgMusic.play().then(() => {
+        musicToggleBtn.textContent = "🔊 Music: On";
+        musicToggleBtn.classList.add("active-music");
+      }).catch(err => {
+        console.warn("Audio play blocked by browser policy:", err);
+      });
+    } else {
+      bgMusic.pause();
+      musicToggleBtn.textContent = "🎵 Music: Off";
+      musicToggleBtn.classList.remove("active-music");
+    }
+  });
+}
