@@ -1,4 +1,4 @@
-* {
+=* {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
@@ -14,7 +14,7 @@ body {
   flex-direction: column;
 }
 
-/* Navbar */
+/* Navbar & Brand Logo */
 .navbar {
   display: flex;
   justify-content: space-between;
@@ -31,6 +31,17 @@ body {
   background: linear-gradient(135deg, #fff 0%, #a5a5a5 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+  cursor: pointer;
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+.logo:hover {
+  opacity: 0.85;
+  transform: scale(1.02);
+}
+
+.logo:active {
+  transform: scale(0.96);
 }
 
 .nav-actions {
@@ -319,8 +330,9 @@ body {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  max-height: 320px;
+  max-height: 280px;
   overflow-y: auto;
+  margin-bottom: 12px;
 }
 
 .leaderboard-item {
@@ -335,7 +347,7 @@ body {
 .leaderboard-item .rank {
   font-weight: 800;
   color: #e4e4e7;
-  width: 30px;
+  width: 38px;
 }
 
 .leaderboard-item .name {
@@ -358,4 +370,34 @@ body {
 .leaderboard-item .score-hc {
   font-weight: 700;
   color: #ff5e00;
+}
+
+/* Floating/Pinned Personal Rank Bar */
+.personal-rank-bar {
+  display: flex;
+  align-items: center;
+  padding: 14px 16px;
+  background: rgba(74, 222, 128, 0.1);
+  border: 1px solid rgba(74, 222, 128, 0.3);
+  border-radius: 14px;
+  font-size: 0.95rem;
+  margin-top: 12px;
+}
+
+.personal-rank-bar .rank {
+  font-weight: 900;
+  color: #4ade80;
+  width: 44px;
+}
+
+.personal-rank-bar .name {
+  flex-grow: 1;
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.personal-rank-bar .scores {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
