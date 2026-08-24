@@ -176,6 +176,7 @@ function handleExternalAchievement(payload) {
   if (data.id === "elemental-god") localStorage.setItem("ach_elemental_god", "true");
   if (data.id === "slither-king") localStorage.setItem("ach_slither_king", "true");
   if (data.id === "king-cobra") localStorage.setItem("ach_king_cobra", "true");
+  if (data.id === "void-serpent") localStorage.setItem("ach_void_serpent", "true");
   checkAchievementProgress();
 }
 achievementBus?.addEventListener("message", handleExternalAchievement);
@@ -233,7 +234,8 @@ function checkAchievementProgress() {
     ["ach-hardcore-slayer", "ach_hardcore_slayer"],
     ["ach-elemental-god", "ach_elemental_god"],
     ["ach-slither-king", "ach_slither_king"],
-    ["ach-king-cobra", "ach_king_cobra"]
+    ["ach-king-cobra", "ach_king_cobra"],
+    ["ach-void-serpent", "ach_void_serpent"]
   ];
 
   achievements.forEach(([elementId, storageKey]) => {
@@ -244,7 +246,12 @@ function checkAchievementProgress() {
     const status = item.querySelector(".ach-status");
 
     item.classList.toggle("completed", done);
-
+    if (item.id === "ach-void-serpent") {
+      item.querySelector(".secret-mask")?.replaceChildren(document.createTextNode(done ? (item.dataset.secretTitle || "Void Serpent") : "???"));
+      const desc=item.querySelector(".ach-desc .secret-mask");
+      if(desc) desc.textContent=done ? "Enter the hidden dimension, collect 100 fruit, and unlock wall phasing." : "???";
+      item.classList.toggle("secret-unlocked",done);
+    }
     if (status) {
       status.textContent = done ? "COMPLETED" : "LOCKED";
       status.className = `ach-status ${done ? "status-completed" : "status-locked"}`;
@@ -421,11 +428,12 @@ async function fetchLeaderboard() {
       const data = docSnap.data();
       const pts = data.points || 0;
       const hcPts = data.hcPoints || 0;
+      const scp = data.scp || 0;
       const isMe = auth.currentUser && docSnap.id === auth.currentUser.uid;
 
       if (isMe) {
         currentUserRank = rank;
-        currentUserData = { pts, hcPts, name: data.username || cachedUsername };
+        currentUserData = { pts, hcPts, scp, name: data.username || cachedUsername };
       }
 
       const li = document.createElement("li");
@@ -435,7 +443,7 @@ async function fetchLeaderboard() {
         <span class="name">${data.username || "Anonymous"}</span>
         <div class="scores">
           <span class="score-norm">${pts} PTS</span>
-          <span class="score-hc">${hcPts} HCP</span>
+          <span class="score-hc">${hcPts} HCP</span>${scp>1?`<span class="score-scp">${scp} SCP</span>`:""}
         </div>
       `;
 
@@ -460,6 +468,7 @@ async function fetchLeaderboard() {
       myNameEl.textContent = currentUserData.name;
       myPtsEl.textContent = `${currentUserData.pts} PTS`;
       myHcEl.textContent = `${currentUserData.hcPts} HCP`;
+      const myScpEl=document.getElementById("my-scp");if(myScpEl){myScpEl.textContent=currentUserData.scp>1?`${currentUserData.scp} SCP`:"";myScpEl.style.display=currentUserData.scp>1?"inline":"none";}
 
       const updateRankBarVisibility = () => {
         if (!myUserElement) {
