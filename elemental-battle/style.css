@@ -48,6 +48,22 @@ body {
   display: none !important;
 }
 
+.navbar .nav-btn {
+  color: #fff;
+  text-decoration: none;
+}
+
+.navbar .nav-btn:visited {
+  color: #fff;
+  text-decoration: none;
+}
+
+.navbar .nav-btn:hover,
+.navbar .nav-btn:active {
+  color: #fff;
+  text-decoration: none;
+}
+
 .game-heading {
   text-align: center;
   margin-bottom: 28px;
@@ -77,89 +93,82 @@ body {
   line-height: 1.6;
 }
 
-.mode-select-grid {
+.mode-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 18px;
+  gap: 15px;
 }
 
 .mode-card {
+  appearance: none;
+  color: #fff;
+  text-align: left;
+  min-height: 230px;
+  padding: 23px;
+  border-radius: 19px;
+  border: 1px solid rgba(255,255,255,.1);
+  background: rgba(255,255,255,.035);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 9px;
+  cursor: pointer;
+  transition: transform .28s cubic-bezier(.22,1,.36,1), border-color .28s, background .28s, box-shadow .28s;
   position: relative;
   overflow: hidden;
-  min-height: 235px;
-  padding: 26px;
-  text-align: left;
-  color: var(--eb-white);
-  cursor: pointer;
-  border: 1px solid var(--eb-line);
-  border-radius: 20px;
-  background: rgba(255,255,255,.035);
-  transition:
-    transform .25s ease,
-    border-color .25s ease,
-    box-shadow .25s ease,
-    background .25s ease;
-}
-
-.mode-card::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  background: radial-gradient(circle at 50% 0%, rgba(255,255,255,.11), transparent 55%);
-  transition: opacity .25s ease;
-  pointer-events: none;
 }
 
 .mode-card:hover {
   transform: translateY(-5px);
-  border-color: rgba(255,255,255,.22);
-  box-shadow: 0 18px 45px rgba(0,0,0,.25);
-  background: rgba(255,255,255,.055);
-}
-
-.mode-card:hover::after {
-  opacity: 1;
+  border-color: rgba(255,255,255,.25);
+  background: rgba(255,255,255,.06);
+  box-shadow: 0 16px 34px rgba(0,0,0,.22);
 }
 
 .mode-card:active {
-  transform: translateY(-1px) scale(.985);
-}
-
-.hardcore-card:hover {
-  border-color: rgba(251,113,133,.35);
-  box-shadow: 0 18px 45px rgba(251,113,133,.09);
+  transform: scale(.985);
 }
 
 .mode-icon {
-  display: block;
-  font-size: 2rem;
-  margin-bottom: 16px;
+  opacity: .8;
+  font-size: 1.6rem;
 }
 
-.mode-title {
-  display: block;
-  font-size: 1.3rem;
+.mode-card strong {
+  font-size: 1.2rem;
   font-weight: 900;
-  margin-bottom: 8px;
 }
 
-.mode-desc {
-  display: block;
-  color: #a1a1aa;
+.mode-card p {
+  font-size: .81rem;
   line-height: 1.55;
-  font-size: .9rem;
-  max-width: 48ch;
+  color: #a1a1aa;
+  margin: 0;
 }
 
-.mode-hint {
-  display: inline-block;
-  margin-top: 18px;
-  font-size: .72rem;
-  color: #d4d4d8;
-  font-weight: 800;
-  letter-spacing: .7px;
+.mode-card small {
+  margin-top: auto;
+  font-size: .66rem;
+  font-weight: 900;
+  letter-spacing: 1px;
+  color: #71717a;
   text-transform: uppercase;
+}
+
+.mode-card.hardcore {
+  border-color: rgba(255,94,0,.23);
+  background: rgba(255,94,0,.045);
+}
+
+.mode-card.hardcore:hover {
+  border-color: rgba(255,94,0,.48);
+  background: rgba(255,94,0,.09);
+  box-shadow: 0 16px 34px rgba(255,94,0,.08);
+}
+
+.mode-card.hardcore .mode-icon,
+.mode-card.hardcore strong {
+  color: #ff7a2f;
 }
 
 .header-row {
@@ -608,7 +617,7 @@ body {
     border-radius: 20px;
   }
 
-  .mode-select-grid {
+  .mode-grid {
     grid-template-columns: 1fr;
   }
 

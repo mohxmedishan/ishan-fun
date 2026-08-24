@@ -19,26 +19,26 @@
 
   <main class="game-container">
     <!-- Difficulty selection -->
-    <section id="difficulty-screen" class="game-box">
-      <div class="game-heading">
-        <span class="eyebrow">⚔️ Ishan.fun Arcade</span>
-        <h1>Elemental Battle</h1>
-        <p class="game-sub">Choose your element. Outsmart the bot. First to lose all 3 lives loses.</p>
+    <section id="difficulty-screen" class="game-box difficulty-box">
+      <div class="heading">
+        <span class="eyebrow">ELEMENTAL BATTLE</span>
+        <h1>Choose Your Difficulty</h1>
+        <p class="game-sub">Pick your fighting style. Both modes battle to 3 lives, but how the bot thinks is completely different.</p>
       </div>
 
-      <div class="mode-select-grid">
-        <button id="select-normal-btn" class="mode-card">
+      <div class="mode-grid">
+        <button id="select-normal-btn" class="mode-card normal" type="button">
           <span class="mode-icon">🧠</span>
-          <span class="mode-title">Normal</span>
-          <span class="mode-desc">The bot watches your habits and gradually adapts to the choices you make.</span>
-          <span class="mode-hint">Adaptive opponent</span>
+          <strong>Normal</strong>
+          <p>The bot slowly studies your habits and leans toward countering them, but it's far from unbeatable.</p>
+          <small>Adaptive • Learns over time</small>
         </button>
 
-        <button id="select-hardcore-btn" class="mode-card hardcore-card">
+        <button id="select-hardcore-btn" class="mode-card hardcore" type="button">
           <span class="mode-icon">☠️</span>
-          <span class="mode-title">Hardcore</span>
-          <span class="mode-desc">The bot predicts your next move and counters it. It has only a 10% chance of being wrong.</span>
-          <span class="mode-hint">Brutal prediction</span>
+          <strong>Hardcore</strong>
+          <p>The bot predicts your next move and counters it almost every time. Bring your best mind games.</p>
+          <small>Brutal • High skill</small>
         </button>
       </div>
     </section>
@@ -110,11 +110,6 @@
             <span class="element-desc">Beats Fire</span>
           </button>
         </div>
-      </div>
-
-      <div class="battle-actions">
-        <button id="restart-battle-btn" class="action-btn secondary">Restart Battle</button>
-        <button id="leave-battle-btn" class="action-btn secondary">Back to Modes</button>
       </div>
     </section>
 

@@ -166,8 +166,13 @@ function chooseBotMove() {
     return randomElement();
   }
 
-  // Normal gradually adapts instead of always hard-countering.
-  if (predicted && Math.random() < 0.62) {
+  // Normal starts out close to random and only gradually leans on its read
+  // of you as more rounds are played, instead of hard-countering right away.
+  const roundsPlayed = state.history.length;
+  const learn = Math.min(roundsPlayed / 6, 1); // ramps up over ~6 rounds
+  const counterChance = 0.12 + learn * 0.28; // 12% early game -> 40% once "learned"
+
+  if (predicted && Math.random() < counterChance) {
     return counterFor(predicted);
   }
 
@@ -483,14 +488,6 @@ document.querySelectorAll(".element-btn").forEach(button => {
   button.addEventListener("click", () => {
     playRound(button.dataset.element);
   });
-});
-
-document.getElementById("restart-battle-btn").addEventListener("click", () => {
-  startMode(state.mode);
-});
-
-document.getElementById("leave-battle-btn").addEventListener("click", () => {
-  resetToModes();
 });
 
 document.getElementById("play-again-btn").addEventListener("click", () => {
