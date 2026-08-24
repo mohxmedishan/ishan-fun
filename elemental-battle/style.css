@@ -677,3 +677,9 @@ body {
     padding-bottom: 25px;
   }
 }
+* {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
