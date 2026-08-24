@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getAuth } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-import { getFirestore, doc, setDoc, increment } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { getFirestore, doc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyC5c-np0wNIMkcowH4Rr1i5r3B2-qGY1e4",
@@ -16,222 +16,150 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-const tempColors = ["#0f0f12", "#005f73", "#0a9396", "#94d2bd", "#e9d8a6", "#ee9b00", "#ca6702", "#bb3e03", "#ae2012", "#9b5de5", "#f15bb5", "#00bbf9"];
-const hardcoreIncrements = [1, 0.75, 0.50, 0.25, 0.125, 0.10];
-
-const mainScreen = document.getElementById("main-screen");
-const gameCard = document.getElementById("game-card");
-const modeBadge = document.getElementById("mode-badge");
-const countEl = document.getElementById("count");
-const incrementBtn = document.getElementById("increment-btn");
-const rebirthBtn = document.getElementById("rebirth-btn");
-
-const modeOverlay = document.getElementById("mode-overlay");
-const normalModeBtn = document.getElementById("normal-mode-btn");
-const hardcoreModeBtn = document.getElementById("hardcore-mode-btn");
-
-const progressContainer = document.getElementById("progress-container");
-const progressFill = document.getElementById("progress-fill");
-const progressText = document.getElementById("progress-text");
-
-const gameOverOverlay = document.getElementById("game-over-overlay");
-const earnedPointsEl = document.getElementById("earned-points");
-const summaryModeEl = document.getElementById("summary-mode");
-const restartBtn = document.getElementById("restart-btn");
-
-let gameMode = "normal";
-let count = 0;
-let rebirths = 0;
-let isGameOver = false;
-let hasClickedOnce = false;
-
-window.addEventListener("DOMContentLoaded", () => {
-  setTimeout(() => gameCard.classList.add("fade-in"), 100);
+let currentUser = null;
+onAuthStateChanged(auth, (user) => {
+  currentUser = user;
 });
 
-function selectMode(mode) {
-  gameMode = mode;
-  modeOverlay.classList.remove("show-modal");
+let clicks = parseInt(localStorage.getItem("clicker_clicks") || "0");
+let rebirths = parseInt(localStorage.getItem("clicker_rebirths") || "0");
+let hardcoreClicks = parseInt(localStorage.getItem("clicker_hardcore") || "0");
 
-  if (gameMode === "hardcore") {
-    modeBadge.textContent = "Hardcore 🔥";
-    modeBadge.classList.add("hardcore");
-  } else {
-    modeBadge.textContent = "Normal";
-    modeBadge.classList.remove("hardcore");
+const clickEl = document.getElementById("click-count");
+const rebirthEl = document.getElementById("rebirth-count");
+const hardcoreEl = document.getElementById("hardcore-count");
+
+const clickBtn = document.getElementById("main-click-btn");
+const hardcoreBtn = document.getElementById("hardcore-click-btn");
+const rebirthBtn = document.getElementById("rebirth-btn");
+
+let audioCtx = null;
+
+function getAudioContext() {
+  if (!audioCtx) {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  }
+  if (audioCtx.state === 'suspended') {
+    audioCtx.resume();
+  }
+  return audioCtx;
+}
+
+function playAchievementSFX() {
+  const ctx = getAudioContext();
+  const notes = [523.25, 659.25, 783.99, 1046.50];
+  notes.forEach((freq, idx) => {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = "triangle";
+    osc.frequency.setValueAtTime(freq, ctx.currentTime + (idx * 0.07));
+    gain.gain.setValueAtTime(0.2, ctx.currentTime + (idx * 0.07));
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + (idx * 0.07) + 0.25);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(ctx.currentTime + (idx * 0.07));
+    osc.stop(ctx.currentTime + (idx * 0.07) + 0.25);
+  });
+}
+
+function triggerAchievementToast(title, description, isHardTier = false) {
+  let container = document.getElementById("achievement-toast-container");
+  if (!container) {
+    container = document.createElement("div");
+    container.id = "achievement-toast-container";
+    document.body.appendChild(container);
   }
 
-  resetGame();
-}
+  playAchievementSFX();
 
-function getIncrementValue() {
-  return gameMode === "normal"
-    ? Math.pow(2, rebirths)
-    : hardcoreIncrements[Math.min(rebirths, hardcoreIncrements.length - 1)];
-}
+  const toast = document.createElement("div");
+  toast.className = `achievement-toast ${isHardTier ? "hard-tier" : ""}`;
+  toast.innerHTML = `
+    <div class="toast-info">
+      <span class="toast-title">${title}</span>
+      <span class="toast-desc">${description}</span>
+    </div>
+    <span class="toast-badge locked">LOCKED</span>
+  `;
 
-function animateButton(btn) {
-  btn.animate([
-    { transform: "scale(1)", filter: "brightness(1)" },
-    { transform: "scale(0.95)", filter: "brightness(1.2)" },
-    { transform: "scale(1)", filter: "brightness(1)" }
-  ], { duration: 100, easing: "ease-out" });
-}
+  container.appendChild(toast);
 
-function createParticle(x, y, value) {
-  const particle = document.createElement("div");
-  particle.className = "particle";
-  particle.textContent = `+${value}`;
-
-  const randomX = (Math.random() - 0.5) * 32;
-  particle.style.left = `${x + randomX}px`;
-  particle.style.top = `${y}px`;
-  mainScreen.appendChild(particle);
-
-  const animation = particle.animate([
-    { transform: "translate(0,0) scale(0.9)", opacity: 1 },
-    { transform: `translate(${randomX * 0.4}px,-55px) scale(1.15)`, opacity: 0.95, offset: 0.45 },
-    { transform: `translate(${randomX * 0.8}px,-80px) scale(0.85)`, opacity: 0 }
-  ], { duration: 750, easing: "cubic-bezier(.16,1,.3,1)" });
-
-  animation.onfinish = () => particle.remove();
-}
-
-function updateProgressBar() {
-  const percentage = Math.min(100, Math.floor((count / 100) * 100));
-  progressFill.style.width = `${percentage}%`;
-  progressText.textContent = `${percentage}%`;
-}
-
-function handleIncrement(e) {
-  if (e) e.preventDefault();
-  if (isGameOver) return;
-
-  animateButton(incrementBtn);
-
-  if (!hasClickedOnce) {
-    hasClickedOnce = true;
-    progressContainer.classList.remove("hide-progress");
-    rebirthBtn.classList.remove("show-rebirth");
-  }
-
-  const inc = getIncrementValue();
-  const rect = incrementBtn.getBoundingClientRect();
-  const posX = e && e.clientX ? e.clientX : rect.left + rect.width / 2;
-  const posY = rect.top - 28;
-  
-  createParticle(posX, posY, inc % 1 === 0 ? inc : inc.toFixed(2));
-
-  if (rebirths === 5 && (count + inc) >= 100) {
-    count = 100;
-    countEl.textContent = count;
-    updateProgressBar();
-    triggerGameOver();
-    return;
-  }
-
-  count += inc;
-  countEl.textContent = Number.isInteger(count) ? count : count.toFixed(2);
-  updateProgressBar();
-
-  const cycleIndex = Math.floor(count / 5) % tempColors.length;
-  mainScreen.style.backgroundColor = tempColors[cycleIndex];
-
-  if (count >= 100) {
-    // Fade out progress bar, fade in rebirth button
-    progressContainer.classList.add("hide-progress");
-
-    const nextInc = gameMode === "normal" 
-      ? Math.pow(2, rebirths + 1)
-      : hardcoreIncrements[Math.min(rebirths + 1, hardcoreIncrements.length - 1)];
-
-    rebirthBtn.textContent = `Rebirth to ${rebirths + 1} (${nextInc} per click)`;
-    rebirthBtn.classList.add("show-rebirth");
-  }
-}
-
-function handleRebirth(e) {
-  if (e) e.preventDefault();
-  if (isGameOver) return;
-
-  animateButton(rebirthBtn);
-
-  if (count >= 100) {
-    rebirths++;
-    count = 0;
-    countEl.textContent = count;
-
-    progressFill.style.width = "0%";
-    progressText.textContent = "0%";
-    hasClickedOnce = false;
-
-    rebirthBtn.classList.remove("show-rebirth");
-    progressContainer.classList.add("hide-progress");
-
-    mainScreen.style.backgroundColor = tempColors[0];
-  }
-}
-
-async function handleRewardAndSave() {
-  const isHc = gameMode === "hardcore";
-  const rewardLabel = isHc ? "+1 HC Point!" : "+5 Points!";
-
-  if (!auth.currentUser) {
-    earnedPointsEl.textContent = `${rewardLabel} (Guest)`;
-    return;
-  }
-
-  const userRef = doc(db, "users", auth.currentUser.uid);
-
-  try {
-    if (isHc) {
-      await setDoc(userRef, { hcPoints: increment(1) }, { merge: true });
-    } else {
-      await setDoc(userRef, { points: increment(5) }, { merge: true });
+  setTimeout(() => {
+    const badge = toast.querySelector(".toast-badge");
+    if (badge) {
+      badge.textContent = "COMPLETED";
+      badge.className = `toast-badge completed-pop ${isHardTier ? "hard-tier-badge" : ""}`;
     }
-    earnedPointsEl.textContent = rewardLabel;
+  }, 600);
+
+  setTimeout(() => {
+    toast.classList.add("toast-hide");
+  }, 3800);
+
+  setTimeout(() => {
+    toast.remove();
+  }, 4200);
+}
+
+function updateUI() {
+  if (clickEl) clickEl.textContent = clicks.toLocaleString();
+  if (rebirthEl) rebirthEl.textContent = rebirths.toLocaleString();
+  if (hardcoreEl) hardcoreEl.textContent = hardcoreClicks.toLocaleString();
+}
+
+async function awardPoints(pts, hcPts) {
+  if (!currentUser) return;
+  try {
+    const userRef = doc(db, "users", currentUser.uid);
+    await updateDoc(userRef, {
+      points: increment(pts),
+      hcPoints: increment(hcPts)
+    });
   } catch (err) {
-    console.error("Error saving reward:", err);
-    earnedPointsEl.textContent = rewardLabel;
+    console.error("Failed to sync achievement points:", err);
   }
 }
 
-function triggerGameOver() {
-  isGameOver = true;
-  summaryModeEl.textContent = gameMode === "hardcore" ? "Hardcore 🔥" : "Normal";
-  earnedPointsEl.textContent = "Saving...";
-  
-  gameOverOverlay.classList.add("show-modal");
-  handleRewardAndSave();
+function checkAchievements() {
+  // Check 'Button Smasher!' (1,000 clicks in a single un-rebirthed run)
+  if (clicks >= 1000 && rebirths === 0 && localStorage.getItem("ach_button_smasher") !== "true") {
+    localStorage.setItem("ach_button_smasher", "true");
+    triggerAchievementToast("Button Smasher!", "Reach 1,000 clicks in a single un-rebirthed run.", false);
+    awardPoints(10, 0);
+  }
+
+  // Check 'Hardcore Survivor' (100 Hardcore clicks)
+  if (hardcoreClicks >= 100 && localStorage.getItem("ach_hardcore_survivor") !== "true") {
+    localStorage.setItem("ach_hardcore_survivor", "true");
+    triggerAchievementToast("Hardcore Survivor", "Reach 100 Hardcore Mode clicks.", true);
+    awardPoints(0, 5);
+  }
 }
 
-function resetGame() {
-  count = 0;
-  rebirths = 0;
-  isGameOver = false;
-  hasClickedOnce = false;
+clickBtn?.addEventListener("click", () => {
+  clicks++;
+  localStorage.setItem("clicker_clicks", clicks);
+  updateUI();
+  checkAchievements();
+});
 
-  countEl.textContent = count;
-  progressFill.style.width = "0%";
-  progressText.textContent = "0%";
+hardcoreBtn?.addEventListener("click", () => {
+  hardcoreClicks++;
+  localStorage.setItem("clicker_hardcore", hardcoreClicks);
+  updateUI();
+  checkAchievements();
+});
 
-  progressContainer.classList.add("hide-progress");
-  rebirthBtn.classList.remove("show-rebirth");
+rebirthBtn?.addEventListener("click", () => {
+  if (clicks >= 1000) {
+    clicks = 0;
+    rebirths++;
+    localStorage.setItem("clicker_clicks", clicks);
+    localStorage.setItem("clicker_rebirths", rebirths);
+    updateUI();
+  } else {
+    alert("You need at least 1,000 clicks to Rebirth!");
+  }
+});
 
-  mainScreen.style.backgroundColor = tempColors[0];
-  gameOverOverlay.classList.remove("show-modal");
-}
-
-function handleRestart(e) {
-  if (e) e.preventDefault();
-  animateButton(restartBtn);
-  gameOverOverlay.classList.remove("show-modal");
-  modeOverlay.classList.add("show-modal");
-}
-
-normalModeBtn.addEventListener("pointerdown", () => selectMode("normal"));
-hardcoreModeBtn.addEventListener("pointerdown", () => selectMode("hardcore"));
-
-incrementBtn.addEventListener("pointerdown", handleIncrement);
-rebirthBtn.addEventListener("pointerdown", handleRebirth);
-restartBtn.addEventListener("pointerdown", handleRestart);
+updateUI();
