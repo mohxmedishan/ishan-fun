@@ -432,11 +432,9 @@ async function awardAchievement(points, hcPoints) {
 }
 
 function checkHardcoreSlayer() {
-  if (
-    localStorage.getItem("ach_hardcore_button") === "true" &&
-    localStorage.getItem("ach_hardcore_elemental") === "true" &&
-    localStorage.getItem("ach_hardcore_slayer") !== "true"
-  ) {
+  const completed = ["ach_hardcore_button", "ach_hardcore_elemental", "ach_hardcore_snake"]
+    .filter(key => localStorage.getItem(key) === "true").length;
+  if (completed >= 2 && localStorage.getItem("ach_hardcore_slayer") !== "true") {
     localStorage.setItem("ach_hardcore_slayer", "true");
     broadcastAchievement(
       "hardcore-slayer",
