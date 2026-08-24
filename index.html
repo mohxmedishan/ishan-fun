@@ -5,8 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Ishan.fun</title>
   <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="toast.css" />
 </head>
 <body>
+
+  <!-- Floating Toast Container -->
+  <div id="achievement-toast-container"></div>
 
   <!-- Top Navbar -->
   <nav class="navbar">
@@ -59,7 +63,6 @@
       <p class="modal-sub">Complete challenges to earn PTS and HCP</p>
 
       <ul id="achievements-list" class="achievements-list">
-        <!-- Button Smasher! (Normal) -->
         <li id="ach-button-smasher" class="achievement-item norm-tier">
           <div class="ach-info">
             <div class="ach-title-row">
@@ -71,7 +74,6 @@
           <span class="ach-status status-locked">LOCKED</span>
         </li>
 
-        <!-- Hardcore Survivor (Hard) -->
         <li id="ach-hardcore-survivor" class="achievement-item hard-tier">
           <div class="ach-info">
             <div class="ach-title-row">
@@ -129,7 +131,6 @@
         <li class="loading-item">Loading PTS...</li>
       </ul>
 
-      <!-- Sticky Personal Rank Bar -->
       <div id="personal-rank-bar" class="personal-rank-bar" style="display: none;">
         <span id="my-rank" class="rank">#--</span>
         <span id="my-name" class="name">Player</span>
