@@ -487,3 +487,26 @@ async function fetchLeaderboard() {
     leaderboardList.innerHTML = '<li class="loading-item">Failed to load leaderboard.</li>';
   }
 }
+const newAchievements = [
+  {
+    id: "elemental_master",
+    title: "Elemental Master",
+    description: "Beat Elemental Battles in Normal Mode without losing any lives.",
+    reward: { type: "PTS", amount: 10 },
+    unlocked: false
+  },
+  {
+    id: "hardcore_slayer",
+    title: "Hardcore Slayer",
+    description: "Beat 2 games on Hardcore Mode.",
+    reward: { type: "HCP", amount: 5 },
+    unlocked: false
+  },
+  {
+    id: "elemental_god",
+    title: "Elemental God",
+    description: "Beat Elemental Battles in Hardcore Mode without losing any lives.",
+    reward: { type: "HCP", amount: 5 },
+    unlocked: false
+  }
+];
