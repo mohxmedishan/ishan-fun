@@ -4,7 +4,67 @@ import { getFirestore, doc, updateDoc, increment } from "https://www.gstatic.com
 
 const firebaseConfig={apiKey:"AIzaSyC5c-np0wNIMkcowH4Rr1i5r3B2-qGY1e4",authDomain:"ishan-fun.firebaseapp.com",projectId:"ishan-fun",storageBucket:"ishan-fun.firebasestorage.app",messagingSenderId:"919307010777",appId:"1:919307010777:web:35b659050c32e7c05c74c8",measurementId:"G-S8H37T0FNX"};
 const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getFirestore(app);
-let currentUser=null; onAuthStateChanged(auth,u=>currentUser=u);
+
+// Private developer access. Add your Firebase Auth UID here to activate the
+// floating developer tools. The ?dev=1 flag is an additional gate.
+// Add ONLY your Firebase Authentication UID here.
+// Example: const DEV_UIDS=new Set(["abc123..."]);
+// The panel stays completely hidden until the signed-in user matches this UID
+// AND the page has ?dev=1.
+const DEV_UIDS=new Set([]);
+const DEV_QUERY=new URLSearchParams(location.search).get("dev")==="1";
+let currentUser=null;
+let devAuthorized=false;
+
+onAuthStateChanged(auth,u=>{currentUser=u;syncDevAccess()});
+function syncDevAccess(){
+  devAuthorized=DEV_QUERY&&!!currentUser&&DEV_UIDS.has(currentUser.uid);
+  const tools=document.getElementById("dev-tools");
+  if(!tools)return;
+  tools.hidden=!devAuthorized;
+  tools.setAttribute("aria-hidden",String(!devAuthorized));
+  if(!devAuthorized){document.getElementById("dev-panel")?.setAttribute("hidden","");document.getElementById("dev-fab")?.setAttribute("aria-expanded","false");}
+  if(devAuthorized)syncDevVoidToggle();
+}
+function syncDevVoidToggle(){
+  const toggle=document.getElementById("dev-void-toggle"),status=document.getElementById("dev-status");
+  if(!toggle)return;
+  const on=localStorage.getItem("dev_void_purple")==="true";
+  toggle.checked=on;
+  if(status){status.textContent=on?"Void Purple unlocked for this browser.":"Void Purple is locked.";status.classList.toggle("active",on)}
+  syncPicker();
+}
+function setDevVoidUnlocked(on){
+  if(!devAuthorized)return;
+  localStorage.setItem("dev_void_purple",String(!!on));
+  syncDevVoidToggle();
+  announce(on?"dev-void-unlock-on":"dev-void-unlock-off",on?"Void Purple Unlocked":"Void Purple Locked",on?"Developer test unlock enabled.":"Developer test unlock disabled.",false);
+}
+function initDevTools(){
+  const tools=document.getElementById("dev-tools"),fab=document.getElementById("dev-fab"),panel=document.getElementById("dev-panel"),close=document.getElementById("dev-close"),handle=document.getElementById("dev-drag-handle"),toggle=document.getElementById("dev-void-toggle");
+  if(!tools||!fab||!panel||!handle||!toggle)return;
+  fab.addEventListener("click",()=>{const open=panel.hasAttribute("hidden");if(open)panel.removeAttribute("hidden");else panel.setAttribute("hidden","");fab.setAttribute("aria-expanded",String(open))});
+  close?.addEventListener("click",()=>{panel.setAttribute("hidden","");fab.setAttribute("aria-expanded","false")});
+  toggle.addEventListener("change",()=>setDevVoidUnlocked(toggle.checked));
+
+  let drag=null;
+  handle.addEventListener("pointerdown",e=>{
+    if(e.target.closest("button"))return;
+    const r=panel.getBoundingClientRect();
+    drag={dx:e.clientX-r.left,dy:e.clientY-r.top};
+    panel.classList.add("dragging");handle.setPointerCapture?.(e.pointerId);
+  });
+  handle.addEventListener("pointermove",e=>{
+    if(!drag)return;
+    const margin=8;
+    const maxX=Math.max(margin,window.innerWidth-panel.offsetWidth-margin),maxY=Math.max(margin,window.innerHeight-panel.offsetHeight-margin);
+    const x=Math.min(maxX,Math.max(margin,e.clientX-drag.dx)),y=Math.min(maxY,Math.max(margin,e.clientY-drag.dy));
+    panel.style.left=`${x}px`;panel.style.top=`${y}px`;panel.style.right="auto";panel.style.bottom="auto";
+  });
+  const stopDrag=()=>{drag=null;panel.classList.remove("dragging")};
+  handle.addEventListener("pointerup",stopDrag);handle.addEventListener("pointercancel",stopDrag);
+}
+
 
 const screens={difficulty:document.getElementById("difficulty-screen"),customize:document.getElementById("customize-screen"),gameplay:document.getElementById("gameplay-screen"),gameover:document.getElementById("gameover-screen")};
 const canvas=document.getElementById("snake-board"),ctx=canvas.getContext("2d");
@@ -75,7 +135,7 @@ function setDirection(x,y){
   state.nextDirection={x,y};
 }
 function keyHandler(e){const key=e.key.toLowerCase();const map={arrowup:[0,-1],w:[0,-1],arrowdown:[0,1],s:[0,1],arrowleft:[-1,0],a:[-1,0],arrowright:[1,0],d:[1,0]};if(map[key]){e.preventDefault();setDirection(...map[key])}}
-function unlockedSkin(id){if(["white","red","green","blue","yellow"].includes(id))return true;if(id==="rainbow")return localStorage.getItem("ach_king_cobra")==="true";if(id==="gradient")return localStorage.getItem("ach_slither_king")==="true";if(id==="phase-purple")return localStorage.getItem("ach_void_serpent")==="true";return false}
+function unlockedSkin(id){if(["white","red","green","blue","yellow"].includes(id))return true;if(id==="rainbow")return localStorage.getItem("ach_king_cobra")==="true";if(id==="gradient")return localStorage.getItem("ach_slither_king")==="true";if(id==="phase-purple")return localStorage.getItem("ach_void_serpent")==="true"||localStorage.getItem("dev_void_purple")==="true";return false}
 function unlockedFruit(id){if(["apple","banana","orange"].includes(id))return true;if(id==="mango")return localStorage.getItem("ach_king_cobra")==="true";if(id==="strawberry")return localStorage.getItem("ach_slither_king")==="true";return false}
 function syncPicker(){document.querySelectorAll("[data-skin]").forEach(b=>{const id=b.dataset.skin;const ok=unlockedSkin(id);b.disabled=!ok;b.classList.toggle("locked",!ok);b.classList.toggle("selected",state.skin===id);b.querySelector(".lock-mark")?.replaceChildren(document.createTextNode(ok?"":"🔒"))});document.querySelectorAll("[data-fruit]").forEach(b=>{const id=b.dataset.fruit;const ok=unlockedFruit(id);b.disabled=!ok;b.classList.toggle("locked",!ok);b.classList.toggle("selected",state.fruit===id);b.querySelector(".lock-mark")?.replaceChildren(document.createTextNode(ok?"":"🔒"))})}
 function chooseMode(mode){state.mode=mode;state.skin="white";state.fruit="apple";syncPicker();screen("customize")}
@@ -202,4 +262,5 @@ function end(won){
   if(won)finishAchievement(true);screen("gameover");
 }
 
+initDevTools();syncDevAccess();
 document.getElementById("select-normal-btn").addEventListener("click",()=>chooseMode("normal"));document.getElementById("select-hardcore-btn").addEventListener("click",()=>chooseMode("hardcore"));document.getElementById("confirm-customize-btn").addEventListener("click",start);document.querySelectorAll("[data-skin]").forEach(b=>b.addEventListener("click",()=>{if(unlockedSkin(b.dataset.skin)){state.skin=b.dataset.skin;syncPicker()}}));document.querySelectorAll("[data-fruit]").forEach(b=>b.addEventListener("click",()=>{if(unlockedFruit(b.dataset.fruit)){state.fruit=b.dataset.fruit;syncPicker()}}));document.getElementById("play-again-btn").addEventListener("click",()=>{syncPicker();screen("customize")});window.addEventListener("keydown",keyHandler);window.addEventListener("resize",resizeCanvas);
