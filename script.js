@@ -174,6 +174,8 @@ function handleExternalAchievement(payload) {
   if (data.id === "elemental-master") localStorage.setItem("ach_elemental_master", "true");
   if (data.id === "hardcore-slayer") localStorage.setItem("ach_hardcore_slayer", "true");
   if (data.id === "elemental-god") localStorage.setItem("ach_elemental_god", "true");
+  if (data.id === "slither-king") localStorage.setItem("ach_slither_king", "true");
+  if (data.id === "king-cobra") localStorage.setItem("ach_king_cobra", "true");
   checkAchievementProgress();
 }
 achievementBus?.addEventListener("message", handleExternalAchievement);
@@ -229,7 +231,9 @@ function checkAchievementProgress() {
     ["ach-hardcore-survivor", "ach_hardcore_survivor"],
     ["ach-elemental-master", "ach_elemental_master"],
     ["ach-hardcore-slayer", "ach_hardcore_slayer"],
-    ["ach-elemental-god", "ach_elemental_god"]
+    ["ach-elemental-god", "ach_elemental_god"],
+    ["ach-slither-king", "ach_slither_king"],
+    ["ach-king-cobra", "ach_king_cobra"]
   ];
 
   achievements.forEach(([elementId, storageKey]) => {
