@@ -23,6 +23,7 @@ const db = getFirestore(app);
 const googleProvider = new GoogleAuthProvider();
 
 // DOM Elements
+const logoBtn = document.getElementById("logo");
 const authModal = document.getElementById("auth-modal");
 const lbModal = document.getElementById("leaderboard-modal");
 const openAuthBtn = document.getElementById("open-auth-btn");
@@ -35,7 +36,17 @@ const logoutBtn = document.getElementById("logout-btn");
 const heroSubtitle = document.getElementById("hero-subtitle");
 const leaderboardList = document.getElementById("leaderboard-list");
 
-// Modal Toggles
+const personalRankBar = document.getElementById("personal-rank-bar");
+const myRankEl = document.getElementById("my-rank");
+const myPtsEl = document.getElementById("my-pts");
+const myHcEl = document.getElementById("my-hc");
+
+// Brand Refresh Click
+logoBtn?.addEventListener("click", () => {
+  window.location.reload();
+});
+
+// Modal Controls
 openAuthBtn?.addEventListener("click", () => authModal.classList.add("active"));
 closeAuthBtn?.addEventListener("click", () => authModal.classList.remove("active"));
 leaderboardBtn?.addEventListener("click", () => {
@@ -104,10 +115,9 @@ document.getElementById("google-btn")?.addEventListener("click", async () => {
 // LOG OUT
 logoutBtn?.addEventListener("click", () => signOut(auth));
 
-// AUTH STATE OBSERVER (Handles UI updates & Auto-close)
+// AUTH STATE OBSERVER
 onAuthStateChanged(auth, async (user) => {
   if (user) {
-    // Attempt Firestore fetch
     let displayUsername = "";
     try {
       const userSnap = await getDoc(doc(db, "users", user.uid));
@@ -118,54 +128,56 @@ onAuthStateChanged(auth, async (user) => {
       console.warn("Firestore fetch deferred:", e);
     }
 
-    // Fallbacks if database isn't populated yet
     if (!displayUsername) {
       displayUsername = user.displayName || user.email?.split("@")[0] || "Player";
     }
 
-    // Update status bar & Navbar
     if (statusEl) statusEl.textContent = displayUsername;
     if (openAuthBtn) openAuthBtn.style.display = "none";
     if (logoutBtn) logoutBtn.style.display = "inline-block";
 
-    // Update Hero Subtitle Text
     if (heroSubtitle) {
       heroSubtitle.textContent = `🔥 Welcome back, ${displayUsername}! Compete with top players on the leaderboard.`;
     }
 
-    // AUTO-CLOSE THE AUTH MODAL
     if (authModal) {
       authModal.classList.remove("active");
     }
-
   } else {
-    // Logged Out State
     if (statusEl) statusEl.textContent = "Not logged in";
     if (openAuthBtn) openAuthBtn.style.display = "inline-block";
     if (logoutBtn) logoutBtn.style.display = "none";
 
-    // Reset Hero Subtitle
     if (heroSubtitle) {
       heroSubtitle.textContent = "Log in to save your points to the global leaderboard.";
     }
   }
 });
 
-// FETCH LEADERBOARD DATA
+// FETCH LEADERBOARD (Top players + Personal Pinned Rank Bar)
 async function fetchLeaderboard() {
   if (!leaderboardList) return;
   leaderboardList.innerHTML = '<li class="loading-item">Loading leaderboard...</li>';
+  personalRankBar.style.display = "none";
+
   try {
-    const q = query(collection(db, "users"), orderBy("points", "desc"), limit(10));
+    const q = query(collection(db, "users"), orderBy("points", "desc"), limit(50));
     const querySnapshot = await getDocs(q);
 
     leaderboardList.innerHTML = "";
     let rank = 1;
+    let currentUserRank = null;
+    let currentUserData = null;
 
-    querySnapshot.forEach((doc) => {
-      const data = doc.data();
+    querySnapshot.forEach((docSnap) => {
+      const data = docSnap.data();
       const pts = data.points || 0;
       const hcPts = data.hcPoints || 0;
+
+      if (auth.currentUser && docSnap.id === auth.currentUser.uid) {
+        currentUserRank = rank;
+        currentUserData = { pts, hcPts };
+      }
 
       const li = document.createElement("li");
       li.className = "leaderboard-item";
@@ -174,12 +186,30 @@ async function fetchLeaderboard() {
         <span class="name">${data.username || "Anonymous"}</span>
         <div class="scores">
           <span class="score-norm">${pts} pts</span>
-          <span class="score-hc">${hcPts} HC</span>
+          <span class="score-hc">${hcPts} HCP</span>
         </div>
       `;
       leaderboardList.appendChild(li);
       rank++;
     });
+
+    // Populate pinned personal rank bar if user logged in
+    if (auth.currentUser) {
+      personalRankBar.style.display = "flex";
+      if (currentUserRank) {
+        myRankEl.textContent = `#${currentUserRank}`;
+        myPtsEl.textContent = `${currentUserData.pts} pts`;
+        myHcEl.textContent = `${currentUserData.hcPts} HCP`;
+      } else {
+        // User logged in but unranked in top 50
+        const myDoc = await getDoc(doc(db, "users", auth.currentUser.uid));
+        const myData = myDoc.exists() ? myDoc.data() : { points: 0, hcPoints: 0 };
+        myRankEl.textContent = "#50+";
+        myPtsEl.textContent = `${myData.points || 0} pts`;
+        myHcEl.textContent = `${myData.hcPoints || 0} HCP`;
+      }
+    }
+
   } catch (err) {
     console.error("Leaderboard fetch error:", err);
     leaderboardList.innerHTML = '<li class="loading-item">Failed to load leaderboard.</li>';
