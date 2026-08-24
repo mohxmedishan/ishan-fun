@@ -88,25 +88,6 @@
   </section>
 </main>
 
-<!-- Developer tools: hidden unless the authenticated Firebase UID is allowlisted and ?dev=1 is enabled. -->
-<div id="dev-tools" class="dev-tools" hidden aria-hidden="true">
-  <button id="dev-fab" class="dev-fab" type="button" aria-label="Open developer tools" aria-expanded="false">🛠️</button>
-  <section id="dev-panel" class="dev-panel" aria-label="Developer tools" hidden>
-    <div id="dev-drag-handle" class="dev-drag-handle">
-      <div><span class="dev-kicker">PRIVATE</span><strong>Developer Mode</strong></div>
-      <button id="dev-close" class="dev-close" type="button" aria-label="Close developer tools">×</button>
-    </div>
-    <div class="dev-body">
-      <p class="dev-note">Debug tools are only available to the allowlisted Firebase account.</p>
-      <label class="dev-toggle-row" for="dev-void-toggle">
-        <span><strong>Unlock Void Purple</strong><small>Unlocks the secret snake skin for testing.</small></span>
-        <input id="dev-void-toggle" type="checkbox">
-        <span class="dev-switch" aria-hidden="true"></span>
-      </label>
-      <div id="dev-status" class="dev-status">Locked</div>
-    </div>
-  </section>
-</div>
 <script type="module" src="script.js"></script>
 </body>
 </html>
