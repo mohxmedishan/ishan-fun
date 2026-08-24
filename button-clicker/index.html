@@ -3,72 +3,47 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Button Clicker</title>
+  <title>Button Clicker | Ishan.fun</title>
+  <link rel="stylesheet" href="../style.css" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-  <main id="main-screen">
-    <div id="game-card" class="game-card">
-      
-      <div id="mode-badge" class="mode-badge">Normal</div>
+  <!-- Floating Toast Container -->
+  <div id="achievement-toast-container"></div>
 
-      <div class="counter-container">
-        <h1 id="count">0</h1>
-      </div>
+  <nav class="navbar">
+    <a href="../index.html" class="logo">Ishan.fun</a>
+    <div class="nav-actions">
+      <a href="../index.html" class="nav-btn">← Back to Hub</a>
+    </div>
+  </nav>
 
-      <div class="action-area">
-        <button id="increment-btn" class="game-btn">CLICK ME</button>
-        
-        <div id="progress-container" class="progress-container hide-progress">
-          <div class="progress-bar">
-            <div id="progress-fill" class="progress-fill"></div>
-          </div>
-          <span id="progress-text">0%</span>
+  <main class="game-container">
+    <div class="game-box">
+      <h1>Button Clicker</h1>
+      <p class="game-sub">Click to gain points and reach Rebirths!</p>
+
+      <div class="stats-row">
+        <div class="stat-card">
+          <span class="stat-label">Clicks</span>
+          <span id="click-count" class="stat-value">0</span>
         </div>
-
-        <button id="rebirth-btn" class="rebirth-btn">Rebirth to 1 (2 per click)</button>
+        <div class="stat-card">
+          <span class="stat-label">Rebirths</span>
+          <span id="rebirth-count" class="stat-value">0</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Hardcore Clicks</span>
+          <span id="hardcore-count" class="stat-value">0</span>
+        </div>
       </div>
 
+      <button id="main-click-btn" class="click-btn">CLICK ME!</button>
+      <button id="hardcore-click-btn" class="click-btn hardcore-btn">HARDCORE CLICK</button>
+      <button id="rebirth-btn" class="rebirth-btn">Rebirth (Requires 1,000 Clicks)</button>
     </div>
   </main>
-
-  <!-- Mode Selection Modal -->
-  <div id="mode-overlay" class="modal-overlay show-modal">
-    <div class="modal-box">
-      <h2>Select Mode</h2>
-      <p class="modal-desc">Choose your difficulty to begin:</p>
-
-      <div class="mode-btns">
-        <button id="normal-mode-btn" class="mode-choice-btn">
-          <strong>Normal Mode</strong>
-          <span>Earn +5 Points</span>
-        </button>
-
-        <button id="hardcore-mode-btn" class="mode-choice-btn hardcore">
-          <strong>Hardcore Mode 🔥</strong>
-          <span>Earn +1 HC Point</span>
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Game Over Modal -->
-  <div id="game-over-overlay" class="modal-overlay">
-    <div class="modal-box">
-      <h2>🎉 Game Complete!</h2>
-      <p class="modal-desc">You beat <span id="summary-mode">Normal</span> mode!</p>
-
-      <div class="reward-box">
-        <span id="earned-points">+5 Points!</span>
-      </div>
-
-      <div class="game-over-actions">
-        <button id="restart-btn" class="restart-btn">Play Again</button>
-        <a href="../index.html" class="home-btn">Back to Home</a>
-      </div>
-    </div>
-  </div>
 
   <script type="module" src="script.js"></script>
 </body>
