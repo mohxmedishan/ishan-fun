@@ -38,13 +38,14 @@ const leaderboardList = document.getElementById("leaderboard-list");
 
 const personalRankBar = document.getElementById("personal-rank-bar");
 const myRankEl = document.getElementById("my-rank");
+const myNameEl = document.getElementById("my-name");
 const myPtsEl = document.getElementById("my-pts");
 const myHcEl = document.getElementById("my-hc");
 
+let cachedUsername = "Player";
+
 // Brand Refresh Click
-logoBtn?.addEventListener("click", () => {
-  window.location.reload();
-});
+logoBtn?.addEventListener("click", () => window.location.reload());
 
 // Modal Controls
 openAuthBtn?.addEventListener("click", () => authModal.classList.add("active"));
@@ -118,32 +119,28 @@ logoutBtn?.addEventListener("click", () => signOut(auth));
 // AUTH STATE OBSERVER
 onAuthStateChanged(auth, async (user) => {
   if (user) {
-    let displayUsername = "";
     try {
       const userSnap = await getDoc(doc(db, "users", user.uid));
       if (userSnap.exists() && userSnap.data().username) {
-        displayUsername = userSnap.data().username;
+        cachedUsername = userSnap.data().username;
+      } else {
+        cachedUsername = user.displayName || user.email?.split("@")[0] || "Player";
       }
     } catch (e) {
-      console.warn("Firestore fetch deferred:", e);
+      cachedUsername = user.displayName || user.email?.split("@")[0] || "Player";
     }
 
-    if (!displayUsername) {
-      displayUsername = user.displayName || user.email?.split("@")[0] || "Player";
-    }
-
-    if (statusEl) statusEl.textContent = displayUsername;
+    if (statusEl) statusEl.textContent = cachedUsername;
     if (openAuthBtn) openAuthBtn.style.display = "none";
     if (logoutBtn) logoutBtn.style.display = "inline-block";
 
     if (heroSubtitle) {
-      heroSubtitle.textContent = `🔥 Welcome back, ${displayUsername}! Compete with top players on the leaderboard.`;
+      heroSubtitle.textContent = `🔥 Welcome back, ${cachedUsername}! Compete with top players on the leaderboard.`;
     }
 
-    if (authModal) {
-      authModal.classList.remove("active");
-    }
+    if (authModal) authModal.classList.remove("active");
   } else {
+    cachedUsername = "Player";
     if (statusEl) statusEl.textContent = "Not logged in";
     if (openAuthBtn) openAuthBtn.style.display = "inline-block";
     if (logoutBtn) logoutBtn.style.display = "none";
@@ -154,11 +151,11 @@ onAuthStateChanged(auth, async (user) => {
   }
 });
 
-// FETCH LEADERBOARD (Top players + Personal Pinned Rank Bar)
+// FETCH LEADERBOARD WITH VISIBILITY CHECK
 async function fetchLeaderboard() {
   if (!leaderboardList) return;
   leaderboardList.innerHTML = '<li class="loading-item">Loading leaderboard...</li>';
-  personalRankBar.style.display = "none";
+  if (personalRankBar) personalRankBar.style.display = "none";
 
   try {
     const q = query(collection(db, "users"), orderBy("points", "desc"), limit(50));
@@ -168,19 +165,21 @@ async function fetchLeaderboard() {
     let rank = 1;
     let currentUserRank = null;
     let currentUserData = null;
+    let myUserElement = null;
 
     querySnapshot.forEach((docSnap) => {
       const data = docSnap.data();
       const pts = data.points || 0;
       const hcPts = data.hcPoints || 0;
+      const isMe = auth.currentUser && docSnap.id === auth.currentUser.uid;
 
-      if (auth.currentUser && docSnap.id === auth.currentUser.uid) {
+      if (isMe) {
         currentUserRank = rank;
-        currentUserData = { pts, hcPts };
+        currentUserData = { pts, hcPts, name: data.username || cachedUsername };
       }
 
       const li = document.createElement("li");
-      li.className = "leaderboard-item";
+      li.className = `leaderboard-item ${isMe ? "current-user-item" : ""}`;
       li.innerHTML = `
         <span class="rank">#${rank}</span>
         <span class="name">${data.username || "Anonymous"}</span>
@@ -189,25 +188,51 @@ async function fetchLeaderboard() {
           <span class="score-hc">${hcPts} HCP</span>
         </div>
       `;
+
+      if (isMe) myUserElement = li;
       leaderboardList.appendChild(li);
       rank++;
     });
 
-    // Populate pinned personal rank bar if user logged in
     if (auth.currentUser) {
-      personalRankBar.style.display = "flex";
-      if (currentUserRank) {
-        myRankEl.textContent = `#${currentUserRank}`;
-        myPtsEl.textContent = `${currentUserData.pts} pts`;
-        myHcEl.textContent = `${currentUserData.hcPts} HCP`;
-      } else {
-        // User logged in but unranked in top 50
+      if (!currentUserRank) {
         const myDoc = await getDoc(doc(db, "users", auth.currentUser.uid));
         const myData = myDoc.exists() ? myDoc.data() : { points: 0, hcPoints: 0 };
-        myRankEl.textContent = "#50+";
-        myPtsEl.textContent = `${myData.points || 0} pts`;
-        myHcEl.textContent = `${myData.hcPoints || 0} HCP`;
+        currentUserData = { 
+          pts: myData.points || 0, 
+          hcPts: myData.hcPoints || 0, 
+          name: myData.username || cachedUsername 
+        };
+        currentUserRank = "50+";
       }
+
+      // Populate Pinned Bar
+      myRankEl.textContent = `#${currentUserRank}`;
+      myNameEl.textContent = currentUserData.name;
+      myPtsEl.textContent = `${currentUserData.pts} pts`;
+      myHcEl.textContent = `${currentUserData.hcPts} HCP`;
+
+      // Helper to calculate visibility within the scroll box
+      const updateRankBarVisibility = () => {
+        if (!myUserElement) {
+          personalRankBar.style.display = "flex";
+          return;
+        }
+
+        const listRect = leaderboardList.getBoundingClientRect();
+        const itemRect = myUserElement.getBoundingClientRect();
+
+        const isVisible = (
+          itemRect.top >= listRect.top &&
+          itemRect.bottom <= listRect.bottom
+        );
+
+        personalRankBar.style.display = isVisible ? "none" : "flex";
+      };
+
+      // Initial visibility check & scroll observer
+      updateRankBarVisibility();
+      leaderboardList.onscroll = updateRankBarVisibility;
     }
 
   } catch (err) {
