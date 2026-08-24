@@ -160,6 +160,25 @@ export function triggerAchievementToast(title, description, isHardTier = false) 
 // Make globally available for subpages if needed
 window.triggerAchievementToast = triggerAchievementToast;
 
+// Achievement bridge used by game subpages. BroadcastChannel handles a hub tab
+// that is open alongside the game; the storage event is a fallback.
+const achievementBus = "BroadcastChannel" in window ? new BroadcastChannel("ishan-fun-achievements") : null;
+const handledAchievementEvents = new Set();
+function handleExternalAchievement(payload) {
+  const data = payload?.data || payload;
+  if (!data?.nonce || handledAchievementEvents.has(data.nonce)) return;
+  handledAchievementEvents.add(data.nonce);
+  triggerAchievementToast(data.title, data.description, Boolean(data.isHardTier));
+  if (data.id === "button-smasher") localStorage.setItem("ach_button_smasher", "true");
+  if (data.id === "hardcore-survivor") localStorage.setItem("ach_hardcore_survivor", "true");
+  checkAchievementProgress();
+}
+achievementBus?.addEventListener("message", handleExternalAchievement);
+window.addEventListener("storage", e => {
+  if (e.key !== "ishan_fun_achievement_event" || !e.newValue) return;
+  try { handleExternalAchievement(JSON.parse(e.newValue)); } catch (_) {}
+});
+
 // Global SFX Binding
 document.addEventListener("click", (e) => {
   const target = e.target.closest("button, .nav-btn, .action-btn, .close-btn");
