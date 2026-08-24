@@ -171,6 +171,9 @@ function handleExternalAchievement(payload) {
   triggerAchievementToast(data.title, data.description, Boolean(data.isHardTier));
   if (data.id === "button-smasher") localStorage.setItem("ach_button_smasher", "true");
   if (data.id === "hardcore-survivor") localStorage.setItem("ach_hardcore_survivor", "true");
+  if (data.id === "elemental-master") localStorage.setItem("ach_elemental_master", "true");
+  if (data.id === "hardcore-slayer") localStorage.setItem("ach_hardcore_slayer", "true");
+  if (data.id === "elemental-god") localStorage.setItem("ach_elemental_god", "true");
   checkAchievementProgress();
 }
 achievementBus?.addEventListener("message", handleExternalAchievement);
