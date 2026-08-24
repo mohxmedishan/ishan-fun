@@ -3,6 +3,20 @@ import {getAuth,onAuthStateChanged} from "https://www.gstatic.com/firebasejs/10.
 import {getFirestore,doc,updateDoc,increment} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 const firebaseConfig={apiKey:"AIzaSyC5c-np0wNIMkcowH4Rr1i5r3B2-qGY1e4",authDomain:"ishan-fun.firebaseapp.com",projectId:"ishan-fun",storageBucket:"ishan-fun.firebasestorage.app",messagingSenderId:"919307010777",appId:"1:919307010777:web:35b659050c32e7c05c74c8",measurementId:"G-S8H37T0FNX"};
 const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getFirestore(app);let currentUser=null;onAuthStateChanged(auth,u=>currentUser=u);
+
+// Shared music: the toggle lives on the Ishan.fun hub.
+const MUSIC_KEY = "ishan_fun_music_enabled";
+const sharedMusic = document.getElementById("shared-bg-music");
+if (sharedMusic) {
+  sharedMusic.volume = 0.2;
+  const startSharedMusic = () => {
+    if (localStorage.getItem(MUSIC_KEY) === "true") sharedMusic.play().catch(() => {});
+  };
+  startSharedMusic();
+  window.addEventListener("pointerdown", startSharedMusic, { once: true });
+  window.addEventListener("keydown", startSharedMusic, { once: true });
+}
+
 const TARGET=100,MAX=5,NORMAL=[1,2,5,10,15,20],HARD=[1,.75,.5,.25,.125,.1];let hardcore=false,clicks=0,rawClicks=0,rebirths=0,ready=false,finished=false;
 let audio=null;function ctx(){if(!audio)audio=new(window.AudioContext||window.webkitAudioContext)();if(audio.state==='suspended')audio.resume();return audio}
 function clickSfx(){const c=ctx(),o=c.createOscillator(),g=c.createGain();o.type='sine';o.frequency.setValueAtTime(600,c.currentTime);o.frequency.exponentialRampToValueAtTime(150,c.currentTime+.05);g.gain.setValueAtTime(.15,c.currentTime);g.gain.exponentialRampToValueAtTime(.01,c.currentTime+.05);o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+.05)}
