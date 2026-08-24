@@ -22,7 +22,7 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const googleProvider = new GoogleAuthProvider();
 
-// Web Audio API Synthesizer (Instant Lag-Free SFX)
+// Web Audio API Synthesizer
 let audioCtx = null;
 
 function getAudioContext() {
@@ -67,7 +67,7 @@ const playSFX = {
   },
   loginSuccess: () => {
     const ctx = getAudioContext();
-    const notes = [523.25, 659.25, 783.99]; // C5, E5, G5 Major Arpeggio
+    const notes = [523.25, 659.25, 783.99];
     notes.forEach((freq, idx) => {
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
@@ -97,7 +97,7 @@ const playSFX = {
   }
 };
 
-// Global SFX Binding to all standard buttons
+// Global SFX Binding
 document.addEventListener("click", (e) => {
   const target = e.target.closest("button, .nav-btn, .action-btn, .close-btn");
   if (target && target.id !== "logo" && !target.classList.contains("sfx-link")) {
@@ -109,10 +109,14 @@ document.addEventListener("click", (e) => {
 const logoBtn = document.getElementById("logo");
 const authModal = document.getElementById("auth-modal");
 const lbModal = document.getElementById("leaderboard-modal");
+const achModal = document.getElementById("achievements-modal");
+
 const openAuthBtn = document.getElementById("open-auth-btn");
 const closeAuthBtn = document.getElementById("close-auth-modal");
 const leaderboardBtn = document.getElementById("leaderboard-btn");
 const closeLbBtn = document.getElementById("close-lb-modal");
+const achievementsBtn = document.getElementById("achievements-btn");
+const closeAchBtn = document.getElementById("close-achievements-modal");
 
 const statusEl = document.getElementById("user-status");
 const logoutBtn = document.getElementById("logout-btn");
@@ -131,7 +135,7 @@ const musicIcon = document.getElementById("music-icon");
 
 let cachedUsername = "Player";
 
-// Background Music Toggle (Bottom-Right FAB)
+// Background Music Controller
 if (bgMusic && musicFab) {
   bgMusic.volume = 0.2;
 
@@ -163,11 +167,15 @@ logoBtn?.addEventListener("click", () => {
 // Modal Controls
 openAuthBtn?.addEventListener("click", () => authModal.classList.add("active"));
 closeAuthBtn?.addEventListener("click", () => authModal.classList.remove("active"));
+
 leaderboardBtn?.addEventListener("click", () => {
   lbModal.classList.add("active");
   fetchLeaderboard();
 });
 closeLbBtn?.addEventListener("click", () => lbModal.classList.remove("active"));
+
+achievementsBtn?.addEventListener("click", () => achModal.classList.add("active"));
+closeAchBtn?.addEventListener("click", () => achModal.classList.remove("active"));
 
 // SIGN UP
 document.getElementById("signup-btn")?.addEventListener("click", async () => {
@@ -251,7 +259,6 @@ onAuthStateChanged(auth, async (user) => {
       heroSubtitle.textContent = `🔥 Welcome back, ${cachedUsername}! Compete with top players on the leaderboard.`;
     }
 
-    // Play Victory SFX on Login & Dismiss Modal
     if (authModal && authModal.classList.contains("active")) {
       playSFX.loginSuccess();
       authModal.classList.remove("active");
