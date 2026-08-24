@@ -1,1 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Snake | Ishan.fun</title>
+<link rel="stylesheet" href="../style.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="achievement-toast-container"></div>
+<nav class="navbar">
+  <a href="../index.html" class="logo" aria-label="Ishan.fun home">
+    <span class="logo-mark"><span>I</span></span><span class="logo-word">Ishan<span class="logo-dot">.</span>fun</span>
+  </a>
+  <div class="nav-actions"><a href="../index.html" class="nav-btn back-hub">← <span>Back to Home</span></a></div>
+</nav>
+<main class="game-container">
+  <section id="difficulty-screen" class="game-screen active">
+    <div class="game-box difficulty-box">
+      <div class="heading">
+        <span class="eyebrow">SNAKE</span>
+        <h1>Choose Your Difficulty</h1>
+        <p class="game-sub">Pick your pace. Eat every apple you can, grow the snake, and reach the target without crashing.</p>
+      </div>
+      <div class="mode-grid">
+        <button id="select-normal-btn" class="mode-card normal" type="button">
+          <span class="mode-icon">🍎</span><strong>Normal</strong>
+          <p>Steady movement with more time to read the board. Eat 20 apples and build a 21-segment snake to win.</p>
+          <small>Balanced • 20 apples</small>
+        </button>
+        <button id="select-hardcore-btn" class="mode-card hardcore" type="button">
+          <span class="mode-icon">☠️</span><strong>Hardcore</strong>
+          <p>Faster movement and a longer challenge. Eat 50 apples while keeping control of your growing snake.</p>
+          <small>Brutal • 50 apples</small>
+        </button>
+      </div>
+    </div>
+  </section>
 
+  <section id="gameplay-screen" class="game-screen" aria-hidden="true">
+    <div class="game-box snake-box">
+      <div class="snake-topbar">
+        <span id="current-mode-tag" class="mode-tag">NORMAL</span>
+        <div class="snake-stats">
+          <div><span>APPLES</span><strong id="apple-count">0 / 20</strong></div>
+          <div><span>LENGTH</span><strong id="length-count">1</strong></div>
+        </div>
+      </div>
+      <div class="board-shell"><canvas id="snake-board" aria-label="Snake game board"></canvas></div>
+      <div class="snake-hint"><span>ARROWS / WASD</span><span>Eat the apples • Avoid walls & yourself</span></div>
+    </div>
+  </section>
+
+  <section id="gameover-screen" class="game-screen" aria-hidden="true">
+    <div class="game-box gameover-box">
+      <span class="eyebrow" id="result-eyebrow">RUN COMPLETE</span>
+      <h1 id="result-title">GAME OVER</h1>
+      <p id="result-sub" class="game-sub">You crashed. Grow again and try another run.</p>
+      <div class="reward"><span id="reward-label">APPLES EATEN</span><strong id="final-apples">0</strong><small id="final-mode">NORMAL MODE</small></div>
+      <div class="stats"><div class="stat"><span>FINAL LENGTH</span><strong id="final-length">1</strong></div><div class="stat"><span>TARGET</span><strong id="final-target">20</strong></div></div>
+      <div class="gameover-actions"><button id="play-again-btn" class="action-btn primary" type="button">Play Again</button><a href="../index.html" class="action-btn secondary">Back to Home</a></div>
+    </div>
+  </section>
+</main>
+<script type="module" src="script.js"></script>
+</body>
+</html>
