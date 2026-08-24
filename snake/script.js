@@ -17,9 +17,10 @@ const skinNames={white:"White",red:"Red",green:"Green",blue:"Blue",yellow:"Yello
 let audio=null;
 function audioCtx(){if(!audio)audio=new(window.AudioContext||window.webkitAudioContext)();if(audio.state==='suspended')audio.resume();return audio}
 function tone(freq,dur,type="sine",vol=.08){const c=audioCtx(),o=c.createOscillator(),g=c.createGain();o.type=type;o.frequency.setValueAtTime(freq,c.currentTime);g.gain.setValueAtTime(vol);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+dur);o.connect(g).connect(c.destination);o.start();o.stop(c.currentTime+dur)}
-function eatSfx(){tone(680,.08,"sine",.09);setTimeout(()=>tone(920,.1,"triangle",.07),45)}
-function crashSfx(){tone(180,.28,"sawtooth",.08)}
-function winSfx(){[523.25,659.25,783.99,1046.5].forEach((f,i)=>setTimeout(()=>tone(f,.18,"triangle",.11),i*75))}
+function safeTone(...args){try{tone(...args)}catch(e){console.debug("Snake audio unavailable:",e)}}
+function eatSfx(){safeTone(680,.08,"sine",.09);setTimeout(()=>safeTone(920,.1,"triangle",.07),45)}
+function crashSfx(){safeTone(180,.28,"sawtooth",.08)}
+function winSfx(){[523.25,659.25,783.99,1046.5].forEach((f,i)=>setTimeout(()=>safeTone(f,.18,"triangle",.11),i*75))}
 
 function screen(name){
   Object.entries(screens).forEach(([k,e])=>{
@@ -32,7 +33,17 @@ function screen(name){
 function resizeCanvas(){const c=configs[state.mode];canvas.width=c.cols*c.cell;canvas.height=c.rows*c.cell;draw()}
 function randomCell(){const c=configs[state.mode];return{x:Math.floor(Math.random()*c.cols),y:Math.floor(Math.random()*c.rows)}}
 function same(a,b){return a.x===b.x&&a.y===b.y}
-function spawnApple(){const c=configs[state.mode];let p;do{p=randomCell()}while(state.snake.some(seg=>same(seg,p)));state.apple=p}
+function spawnApple(){
+  const c=configs[state.mode];
+  const occupied=new Set(state.snake.map(seg=>`${seg.x},${seg.y}`));
+  const free=[];
+  for(let y=0;y<c.rows;y++) for(let x=0;x<c.cols;x++){
+    if(!occupied.has(`${x},${y}`)) free.push({x,y});
+  }
+  if(!free.length){state.apple=null;return false}
+  state.apple=free[Math.floor(Math.random()*free.length)];
+  return true;
+}
 function updateUI(){const target=configs[state.mode].target;appleEl.textContent=`${state.apples} / ${target}`;lengthEl.textContent=String(state.snake.length)}
 function skinColor(i){const s=state.skin;if(s==="rainbow"){return `hsl(${(i*28+Date.now()/18)%360},90%,62%)`}if(s==="gradient"){const colors=["#ff3d00","#ff8a00","#ffd000","#4ade80","#38bdf8","#2563eb"];return colors[Math.min(colors.length-1,Math.floor(i/3))]}return {white:"#ffffff",red:"#ef4444",green:"#22c55e",blue:"#3b82f6",yellow:"#facc15"}[s]||"#fff"}
 function draw(){if(!canvas.width)return;const c=configs[state.mode];ctx.clearRect(0,0,canvas.width,canvas.height);ctx.fillStyle="#0d0d10";ctx.fillRect(0,0,canvas.width,canvas.height);
@@ -42,15 +53,87 @@ function draw(){if(!canvas.width)return;const c=configs[state.mode];ctx.clearRec
   if(state.running&&(state.skin==="rainbow"||state.skin==="gradient")){requestAnimationFrame(()=>{if(state.running)draw()})}
 }
 function roundRect(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath()}
-function setDirection(x,y){if(!state.running)return;if(x===-state.direction.x&&y===-state.direction.y)return;if(x===-state.nextDirection.x&&y===-state.nextDirection.y)return;state.nextDirection={x,y}}
+function setDirection(x,y){
+  if(!state.running)return;
+  // Reject an immediate 180° turn, but allow a valid turn to be queued.
+  if(x===-state.direction.x&&y===-state.direction.y)return;
+  state.nextDirection={x,y};
+}
 function keyHandler(e){const key=e.key.toLowerCase();const map={arrowup:[0,-1],w:[0,-1],arrowdown:[0,1],s:[0,1],arrowleft:[-1,0],a:[-1,0],arrowright:[1,0],d:[1,0]};if(map[key]){e.preventDefault();setDirection(...map[key])}}
 function unlockedSkin(id){if(["white","red","green","blue","yellow"].includes(id))return true;if(id==="rainbow")return localStorage.getItem("ach_king_cobra")==="true";if(id==="gradient")return localStorage.getItem("ach_slither_king")==="true";return false}
 function unlockedFruit(id){if(["apple","banana","orange"].includes(id))return true;if(id==="mango")return localStorage.getItem("ach_king_cobra")==="true";if(id==="strawberry")return localStorage.getItem("ach_slither_king")==="true";return false}
 function syncPicker(){document.querySelectorAll("[data-skin]").forEach(b=>{const id=b.dataset.skin;const ok=unlockedSkin(id);b.disabled=!ok;b.classList.toggle("locked",!ok);b.classList.toggle("selected",state.skin===id);b.querySelector(".lock-mark")?.replaceChildren(document.createTextNode(ok?"":"🔒"))});document.querySelectorAll("[data-fruit]").forEach(b=>{const id=b.dataset.fruit;const ok=unlockedFruit(id);b.disabled=!ok;b.classList.toggle("locked",!ok);b.classList.toggle("selected",state.fruit===id);b.querySelector(".lock-mark")?.replaceChildren(document.createTextNode(ok?"":"🔒"))})}
 function chooseMode(mode){state.mode=mode;state.skin="white";state.fruit="apple";syncPicker();screen("customize")}
-function start(){const c=configs[state.mode];state.apple=null;state.snake=[{x:Math.floor(c.cols/2),y:Math.floor(c.rows/2)}];state.direction={x:1,y:0};state.nextDirection={x:1,y:0};state.apples=0;state.running=true;state.gameOver=false;state.lastStep=performance.now();modeEl.textContent=state.mode.toUpperCase();modeEl.classList.toggle("hardcore",state.mode==="hardcore");spawnApple();updateUI();resizeCanvas();screen("gameplay");clearTimeout(state.timer);state.timer=requestAnimationFrame(loop)}
-function loop(now){if(!state.running)return;if(now-state.lastStep>=configs[state.mode].interval){state.lastStep=now;step()}state.timer=requestAnimationFrame(loop)}
-function step(){state.direction={...state.nextDirection};const head={x:state.snake[0].x+state.direction.x,y:state.snake[0].y+state.direction.y};const c=configs[state.mode];const wall=head.x<0||head.x>=c.cols||head.y<0||head.y>=c.rows;const eating=state.apple&&same(head,state.apple);const bodyToCheck=eating?state.snake:state.snake.slice(0,-1);const self=bodyToCheck.some(seg=>same(seg,head));if(wall||self){end(false);return}state.snake.unshift(head);if(eating){state.apples++;eatSfx();if(state.apples>=c.target){end(true);return}spawnApple()}else state.snake.pop();updateUI();draw()}
+function start(){
+  const c=configs[state.mode];
+  cancelAnimationFrame(state.timer);
+  state.apple=null;
+  state.snake=[{x:Math.floor(c.cols/2),y:Math.floor(c.rows/2)}];
+  state.direction={x:1,y:0};
+  state.nextDirection={x:1,y:0};
+  state.apples=0;
+  state.running=true;
+  state.gameOver=false;
+  state.lastStep=performance.now();
+  modeEl.textContent=state.mode.toUpperCase();
+  modeEl.classList.toggle("hardcore",state.mode==="hardcore");
+  spawnApple();
+  updateUI();
+  resizeCanvas();
+  screen("gameplay");
+  state.timer=requestAnimationFrame(loop);
+}
+function loop(now){
+  if(!state.running)return;
+  const interval=configs[state.mode].interval;
+  // Keep movement running after dropped/slow frames without creating a huge
+  // burst of moves. This prevents apparent freezes after fruit collisions.
+  let elapsed=now-state.lastStep;
+  const maxCatchUp=interval*4;
+  if(elapsed>maxCatchUp){
+    state.lastStep=now-maxCatchUp;
+    elapsed=maxCatchUp;
+  }
+  while(state.running && elapsed>=interval){
+    state.lastStep+=interval;
+    step();
+    elapsed=now-state.lastStep;
+  }
+  if(state.running) state.timer=requestAnimationFrame(loop);
+}
+function step(){
+  if(!state.running || state.gameOver || !state.snake.length)return;
+  state.direction={...state.nextDirection};
+  const c=configs[state.mode];
+  const head={
+    x:state.snake[0].x+state.direction.x,
+    y:state.snake[0].y+state.direction.y
+  };
+  const wall=head.x<0||head.x>=c.cols||head.y<0||head.y>=c.rows;
+  const eating=!!state.apple&&same(head,state.apple);
+  // The tail moves away on a normal step, so it is safe to enter that cell.
+  const bodyToCheck=eating?state.snake:state.snake.slice(0,-1);
+  const self=bodyToCheck.some(seg=>same(seg,head));
+  if(wall||self){end(false);return}
+
+  state.snake.unshift(head);
+
+  if(eating){
+    state.apples++;
+    eatSfx();
+    updateUI();
+    draw();
+    if(state.apples>=c.target){end(true);return}
+    // Spawn only after the new head is in the snake. spawnApple uses a
+    // finite free-cell list, so it can never loop forever.
+    if(!spawnApple()){end(true);return}
+  }else{
+    state.snake.pop();
+  }
+
+  updateUI();
+  draw();
+}
 async function award(pts,hcp){if(!currentUser)return;try{await updateDoc(doc(db,"users",currentUser.uid),{points:increment(pts),hcPoints:increment(hcp)})}catch(e){console.error("Failed to sync Snake reward:",e)}}
 function toast(title,desc,hard=false){let box=document.getElementById("achievement-toast-container");if(!box)return;const t=document.createElement("div");t.className=`achievement-toast ${hard?"hard-tier":""}`;t.innerHTML=`<div class="toast-info"><span class="toast-title">${title}</span><span class="toast-desc">${desc}</span></div><span class="toast-badge locked">LOCKED</span>`;box.appendChild(t);setTimeout(()=>{const b=t.querySelector(".toast-badge");if(b){b.textContent="COMPLETED";b.className=`toast-badge completed-pop ${hard?"hard-tier-badge":""}`}},600);setTimeout(()=>t.classList.add("toast-hide"),3800);setTimeout(()=>t.remove(),4200);tone(523,.12,"triangle",.09);setTimeout(()=>tone(659,.12,"triangle",.09),70);setTimeout(()=>tone(784,.16,"triangle",.09),140)}
 function announce(id,title,description,hard=false){const event={id,title,description,isHardTier:hard,nonce:`${Date.now()}-${Math.random()}`};toast(title,description,hard);try{const bus=new BroadcastChannel("ishan-fun-achievements");bus.postMessage(event);bus.close()}catch{}try{localStorage.setItem("ishan_fun_achievement_event",JSON.stringify(event))}catch{}}
@@ -59,6 +142,13 @@ function checkHardcoreSlayer(){const completed=["ach_hardcore_button","ach_hardc
 function finishAchievement(won){if(!won)return;if(state.mode==="normal")completeOnce("ach_slither_king","slither-king","Slither King","Beat Snake on Normal Mode.",10,0,false);if(state.mode==="hardcore")completeOnce("ach_king_cobra","king-cobra","King Cobra","Beat Snake on Hardcore Mode.",0,5,true);
   if(state.mode==="hardcore"){if(localStorage.getItem("ach_hardcore_survivor")!=="true")localStorage.setItem("ach_hardcore_survivor","true");if(localStorage.getItem("ach_hardcore_snake")!=="true"){localStorage.setItem("ach_hardcore_snake","true");checkHardcoreSlayer()}}
 }
-function end(won){if(state.gameOver)return;state.gameOver=true;state.running=false;cancelAnimationFrame(state.timer);state.apple=null;won?winSfx():crashSfx();const c=configs[state.mode];document.getElementById("result-eyebrow").textContent=won?"RUN COMPLETE":"RUN ENDED";document.getElementById("result-title").textContent=won?"YOU WIN":"GAME OVER";document.getElementById("result-sub").textContent=won?`You ate ${c.target} ${state.fruit}${c.target===1?"":"s"} and grew to ${state.snake.length}.`:`The snake crashed after ${state.apples} apple${state.apples===1?"":"s"}.`;document.getElementById("reward-label").textContent=won?"REWARD":"APPLES EATEN";document.getElementById("final-apples").textContent=won?(state.mode==="hardcore"?"+5 HCP":"+10 PTS"):String(state.apples);document.getElementById("final-mode").textContent=state.mode.toUpperCase()+" MODE • "+skinNames[state.skin]+" • "+state.fruit.toUpperCase();document.getElementById("final-length").textContent=String(state.snake.length);document.getElementById("final-target").textContent=String(c.target);if(won){finishAchievement(true)}screen("gameover")}
+function end(won){
+  if(state.gameOver)return;
+  state.gameOver=true;
+  state.running=false;
+  cancelAnimationFrame(state.timer);
+  state.timer=null;
+  state.apple=null;
+  won?winSfx():crashSfx();const c=configs[state.mode];document.getElementById("result-eyebrow").textContent=won?"RUN COMPLETE":"RUN ENDED";document.getElementById("result-title").textContent=won?"YOU WIN":"GAME OVER";document.getElementById("result-sub").textContent=won?`You ate ${c.target} ${state.fruit}${c.target===1?"":"s"} and grew to ${state.snake.length}.`:`The snake crashed after ${state.apples} apple${state.apples===1?"":"s"}.`;document.getElementById("reward-label").textContent=won?"REWARD":"APPLES EATEN";document.getElementById("final-apples").textContent=won?(state.mode==="hardcore"?"+5 HCP":"+10 PTS"):String(state.apples);document.getElementById("final-mode").textContent=state.mode.toUpperCase()+" MODE • "+skinNames[state.skin]+" • "+state.fruit.toUpperCase();document.getElementById("final-length").textContent=String(state.snake.length);document.getElementById("final-target").textContent=String(c.target);if(won){finishAchievement(true)}screen("gameover")}
 
 document.getElementById("select-normal-btn").addEventListener("click",()=>chooseMode("normal"));document.getElementById("select-hardcore-btn").addEventListener("click",()=>chooseMode("hardcore"));document.getElementById("confirm-customize-btn").addEventListener("click",start);document.querySelectorAll("[data-skin]").forEach(b=>b.addEventListener("click",()=>{if(unlockedSkin(b.dataset.skin)){state.skin=b.dataset.skin;syncPicker()}}));document.querySelectorAll("[data-fruit]").forEach(b=>b.addEventListener("click",()=>{if(unlockedFruit(b.dataset.fruit)){state.fruit=b.dataset.fruit;syncPicker()}}));document.getElementById("play-again-btn").addEventListener("click",()=>{syncPicker();screen("customize")});window.addEventListener("keydown",keyHandler);window.addEventListener("resize",resizeCanvas);
