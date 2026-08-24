@@ -26,7 +26,7 @@
   <main class="main-container">
     <header class="hero">
       <h1>Play & Compete</h1>
-      <p id="hero-subtitle">Log in to save your points to the global leaderboard.</p>
+      <p id="hero-subtitle">Log in to save your PTS to the global leaderboard.</p>
     </header>
 
     <div class="games-grid">
@@ -53,26 +53,26 @@
 
   <!-- Achievements Modal -->
   <div id="achievements-modal" class="modal-overlay">
-    <div class="modal-box achievements-box">
+    <div class="modal-box modal-standard">
       <button id="close-achievements-modal" class="close-btn">&times;</button>
       <h2>🏅 Achievements</h2>
       <p class="modal-sub">Complete challenges to earn PTS and HCP</p>
 
       <ul id="achievements-list" class="achievements-list">
         <!-- Button Smasher! (Normal) -->
-        <li class="achievement-item norm-tier completed">
+        <li id="ach-button-smasher" class="achievement-item norm-tier">
           <div class="ach-info">
             <div class="ach-title-row">
               <span class="ach-name">Button Smasher!</span>
               <span class="ach-reward norm">+10 PTS</span>
             </div>
-            <p class="ach-desc">Reach 1,000 raw clicks without rebirthing.</p>
+            <p class="ach-desc">Reach 1,000 clicks in a single un-rebirthed run.</p>
           </div>
-          <span class="ach-status status-completed">COMPLETED</span>
+          <span class="ach-status status-locked">LOCKED</span>
         </li>
 
         <!-- Hardcore Survivor (Hard) -->
-        <li class="achievement-item hard-tier">
+        <li id="ach-hardcore-survivor" class="achievement-item hard-tier">
           <div class="ach-info">
             <div class="ach-title-row">
               <span class="ach-name">Hardcore Survivor</span>
@@ -88,10 +88,10 @@
 
   <!-- Auth Modal -->
   <div id="auth-modal" class="modal-overlay">
-    <div class="modal-box">
+    <div class="modal-box modal-standard">
       <button id="close-auth-modal" class="close-btn">&times;</button>
       <h2>Join Ishan.fun</h2>
-      <p class="modal-sub">Create an account or log in to keep your points.</p>
+      <p class="modal-sub">Create an account or log in to keep your PTS.</p>
 
       <div class="auth-inputs">
         <input type="text" id="username" placeholder="Username (for new accounts)" />
@@ -120,13 +120,13 @@
 
   <!-- Leaderboard Modal -->
   <div id="leaderboard-modal" class="modal-overlay">
-    <div class="modal-box leaderboard-box">
+    <div class="modal-box modal-standard">
       <button id="close-lb-modal" class="close-btn">&times;</button>
       <h2>🏆 Global Leaderboard</h2>
       <p class="modal-sub">Top players on Ishan.fun</p>
 
       <ul id="leaderboard-list" class="leaderboard-list">
-        <li class="loading-item">Loading points...</li>
+        <li class="loading-item">Loading PTS...</li>
       </ul>
 
       <!-- Sticky Personal Rank Bar -->
@@ -134,7 +134,7 @@
         <span id="my-rank" class="rank">#--</span>
         <span id="my-name" class="name">Player</span>
         <div class="scores">
-          <span id="my-pts" class="score-norm">0 pts</span>
+          <span id="my-pts" class="score-norm">0 PTS</span>
           <span id="my-hc" class="score-hc">0 HCP</span>
         </div>
       </div>
