@@ -2,6 +2,24 @@
   "hosting": {
     "public": ".",
     "cleanUrls": true,
-    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"]
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "/snake/**",
+        "destination": "/snake/index.html"
+      },
+      {
+        "source": "/button-clicker/**",
+        "destination": "/button-clicker/index.html"
+      },
+      {
+        "source": "/elemental-battle/**",
+        "destination": "/elemental-battle/index.html"
+      }
+    ]
   }
 }
