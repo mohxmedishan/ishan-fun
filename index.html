@@ -1,49 +1,156 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ishan.fun</title>
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ishan.fun</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="toast.css" />
 </head>
 <body>
-<div class="ambient ambient-one"></div><div class="ambient ambient-two"></div>
-<div id="achievement-toast-container"></div>
-<nav class="navbar">
-  <button id="logo" class="logo" type="button" aria-label="Ishan.fun home"><span class="logo-mark"><span>I</span></span><span class="logo-word">Ishan<span class="logo-dot">.</span>fun</span></button>
-  <div class="nav-actions">
-    <button id="achievements-btn" class="nav-btn" type="button">🏅 Achievements</button>
-    <button id="leaderboard-btn" class="nav-btn" type="button">🏆 Leaderboard</button>
-    <div id="user-pill" class="user-pill"><span id="user-status">Not logged in</span><button id="open-auth-btn" class="nav-btn primary" type="button">Log In</button><button id="logout-btn" class="nav-btn danger" type="button" style="display:none">Log Out</button></div>
-  </div>
-</nav>
-<main class="main-container">
-  <section class="hero">
-    <div class="hero-copy">
-      <span class="eyebrow">WELCOME TO ISHAN.FUN</span>
-      <h1>Play. Compete.<br><span>Have fun.</span></h1>
-      <p id="hero-subtitle">Log in to save your PTS to the global leaderboard.</p>
-      <div class="hero-actions"><a href="./button-clicker/index.html" class="hero-play sfx-link">Play Button Clicker <span>→</span></a><button id="hero-achievements" class="hero-secondary" type="button">View achievements</button></div>
+
+  <!-- Floating Toast Container -->
+  <div id="achievement-toast-container"></div>
+
+  <!-- Top Navbar -->
+  <nav class="navbar">
+    <div id="logo" class="logo">Ishan.fun</div>
+    <div class="nav-actions">
+      <button id="achievements-btn" class="nav-btn">🏅 Achievements</button>
+      <button id="leaderboard-btn" class="nav-btn">🏆 Leaderboard</button>
+      <div id="user-pill" class="user-pill">
+        <span id="user-status">Not logged in</span>
+        <button id="open-auth-btn" class="nav-btn primary">Log In</button>
+        <button id="logout-btn" class="nav-btn danger" style="display: none;">Log Out</button>
+      </div>
     </div>
-    <div class="hero-orb"><div class="orb-ring ring-one"></div><div class="orb-ring ring-two"></div><div class="orb-core">✦</div></div>
-  </section>
-  <section class="section-head"><div><span class="eyebrow">THE ARCADE</span><h2>Games</h2></div><span class="section-note">More coming soon</span></section>
-  <section class="games-grid">
-    <article class="game-card featured-card">
-      <div class="card-top"><span class="card-badge">HOT</span><span class="card-number">01</span></div>
-      <div class="game-icon">◉</div>
-      <h2>Button Clicker</h2>
-      <p>Push your way through five Rebirths, choose your difficulty, and see how far you can take the button.</p>
-      <div class="card-bottom"><span>Normal + Hardcore</span><a href="./button-clicker/index.html" class="play-link sfx-link">Play Game <span>↗</span></a></div>
-    </article>
-    <article class="game-card coming-card"><div class="card-top"><span class="card-badge muted">SOON</span><span class="card-number">02</span></div><div class="game-icon muted-icon">+</div><h2>Next Game</h2><p>The arcade is just getting started. More games will land here as Ishan.fun grows.</p><div class="card-bottom"><span>In development</span><span class="locked-label">Locked</span></div></article>
-  </section>
-  <section class="mini-strip"><div><span class="mini-label">YOUR PROFILE</span><strong id="mini-profile">Not logged in</strong></div><div><span class="mini-label">LEADERBOARD</span><strong>Global PTS</strong></div><div><span class="mini-label">ACHIEVEMENTS</span><strong>2 challenges</strong></div></section>
-</main>
-<button id="music-fab" class="music-fab" title="Toggle Music" type="button"><span id="music-icon">🎵</span><span class="music-label">Music</span></button>
-<audio id="bg-music" loop preload="auto"><source src="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3" type="audio/mpeg"></audio>
-<div id="achievements-modal" class="modal-overlay"><div class="modal-box"><button id="close-achievements-modal" class="close-btn" type="button">×</button><span class="eyebrow">PROGRESS</span><h2>🏅 Achievements</h2><p class="modal-sub">Complete challenges to earn PTS and HCP.</p><ul id="achievements-list" class="achievements-list"><li id="ach-button-smasher" class="achievement-item norm-tier"><div class="ach-info"><div class="ach-title-row"><span class="ach-name">Button Smasher!</span><span class="ach-reward norm">+10 PTS</span></div><p class="ach-desc">Reach 1,000 clicks in a single run without rebirthing.</p></div><span class="ach-status status-locked">LOCKED</span></li><li id="ach-hardcore-survivor" class="achievement-item hard-tier"><div class="ach-info"><div class="ach-title-row"><span class="ach-name">Hardcore Survivor</span><span class="ach-reward hard">+5 HCP</span></div><p class="ach-desc">Beat any game in Hardcore Mode.</p></div><span class="ach-status status-locked">LOCKED</span></li></ul></div></div>
-<div id="auth-modal" class="modal-overlay"><div class="modal-box"><button id="close-auth-modal" class="close-btn" type="button">×</button><span class="eyebrow">ACCOUNT</span><h2>Join Ishan.fun</h2><p class="modal-sub">Create an account or log in to keep your PTS.</p><div class="auth-inputs"><input type="text" id="username" placeholder="Username (for new accounts)"><input type="email" id="email" placeholder="Email address"><input type="password" id="password" placeholder="Password"></div><div class="auth-action-btns"><button id="signup-btn" class="action-btn" type="button">Create Account</button><button id="login-btn" class="action-btn secondary" type="button">Log In</button></div><div class="divider"><span>OR</span></div><button id="google-btn" class="google-btn" type="button">Continue with Google</button></div></div>
-<div id="leaderboard-modal" class="modal-overlay"><div class="modal-box leaderboard-box"><button id="close-lb-modal" class="close-btn" type="button">×</button><span class="eyebrow">GLOBAL</span><h2>🏆 Leaderboard</h2><p class="modal-sub">Top players on Ishan.fun.</p><ul id="leaderboard-list" class="leaderboard-list"><li class="loading-item">Loading PTS...</li></ul><div id="personal-rank-bar" class="personal-rank-bar" style="display:none"><span id="my-rank" class="rank">#--</span><span id="my-name" class="name">Player</span><div class="scores"><span id="my-pts" class="score-norm">0 PTS</span><span id="my-hc" class="score-hc">0 HCP</span></div></div></div></div>
-<script type="module" src="script.js"></script>
-</body></html>
+  </nav>
+
+  <!-- Hero / Games Section -->
+  <main class="main-container">
+    <header class="hero">
+      <h1>Play & Compete</h1>
+      <p id="hero-subtitle">Log in to save your PTS to the global leaderboard.</p>
+    </header>
+
+    <div class="games-grid">
+      <div class="game-card">
+        <div class="card-badge">HOT</div>
+        <h2>Button Clicker</h2>
+        <p>Click your way to 5 Rebirths and trigger the finish sequence!</p>
+        <div class="btn-wrapper">
+          <a href="./button-clicker/index.html" class="play-link sfx-link">Play Game</a>
+        </div>
+      </div>
+
+      <div class="game-card">
+        <div class="card-badge">NEW</div>
+        <h2>Elemental Battle</h2>
+        <p>🔥 Fire, 🌿 Nature, 💧 Water. Pick your element, outsmart the bot, and be the last one standing.</p>
+        <div class="btn-wrapper">
+          <a href="./elemental-battle/index.html" class="play-link sfx-link">Play Game</a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Floating Bottom-Right Music Button -->
+  <button id="music-fab" class="music-fab" title="Toggle Music">
+    <span id="music-icon">🎵</span>
+  </button>
+
+  <!-- Background Music Audio Source -->
+  <audio id="bg-music" loop preload="auto">
+    <source src="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3" type="audio/mpeg">
+  </audio>
+
+  <!-- Achievements Modal -->
+  <div id="achievements-modal" class="modal-overlay">
+    <div class="modal-box modal-standard">
+      <button id="close-achievements-modal" class="close-btn">&times;</button>
+      <h2>🏅 Achievements</h2>
+      <p class="modal-sub">Complete challenges to earn PTS and HCP</p>
+
+      <ul id="achievements-list" class="achievements-list">
+        <li id="ach-button-smasher" class="achievement-item norm-tier">
+          <div class="ach-info">
+            <div class="ach-title-row">
+              <span class="ach-name">Button Smasher!</span>
+              <span class="ach-reward norm">+10 PTS</span>
+            </div>
+            <p class="ach-desc">Reach 1,000 clicks in a single un-rebirthed run.</p>
+          </div>
+          <span class="ach-status status-locked">LOCKED</span>
+        </li>
+
+        <li id="ach-hardcore-survivor" class="achievement-item hard-tier">
+          <div class="ach-info">
+            <div class="ach-title-row">
+              <span class="ach-name">Hardcore Survivor</span>
+              <span class="ach-reward hard">+5 HCP</span>
+            </div>
+            <p class="ach-desc">Reach 100 Hardcore Mode clicks.</p>
+          </div>
+          <span class="ach-status status-locked">LOCKED</span>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Auth Modal -->
+  <div id="auth-modal" class="modal-overlay">
+    <div class="modal-box modal-standard">
+      <button id="close-auth-modal" class="close-btn">&times;</button>
+      <h2>Join Ishan.fun</h2>
+      <p class="modal-sub">Create an account or log in to keep your PTS.</p>
+
+      <div class="auth-inputs">
+        <input type="text" id="username" placeholder="Username (for new accounts)" />
+        <input type="email" id="email" placeholder="Email address" />
+        <input type="password" id="password" placeholder="Password" />
+      </div>
+
+      <div class="auth-action-btns">
+        <button id="signup-btn" class="action-btn">Create Account</button>
+        <button id="login-btn" class="action-btn secondary">Log In</button>
+      </div>
+
+      <div class="divider"><span>OR</span></div>
+
+      <button id="google-btn" class="google-btn">
+        <svg width="18" height="18" viewBox="0 0 18 18">
+          <path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844a4.14 4.14 0 0 1-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.616z"/>
+          <path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z"/>
+          <path fill="#FBBC05" d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z"/>
+          <path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z"/>
+        </svg>
+        Continue with Google
+      </button>
+    </div>
+  </div>
+
+  <!-- Leaderboard Modal -->
+  <div id="leaderboard-modal" class="modal-overlay">
+    <div class="modal-box modal-standard">
+      <button id="close-lb-modal" class="close-btn">&times;</button>
+      <h2>🏆 Global Leaderboard</h2>
+      <p class="modal-sub">Top players on Ishan.fun</p>
+
+      <ul id="leaderboard-list" class="leaderboard-list">
+        <li class="loading-item">Loading PTS...</li>
+      </ul>
+
+      <div id="personal-rank-bar" class="personal-rank-bar" style="display: none;">
+        <span id="my-rank" class="rank">#--</span>
+        <span id="my-name" class="name">Player</span>
+        <div class="scores">
+          <span id="my-pts" class="score-norm">0 PTS</span>
+          <span id="my-hc" class="score-hc">0 HCP</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="script.js"></script>
+</body>
+</html>
