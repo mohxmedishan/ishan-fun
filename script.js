@@ -510,3 +510,45 @@ const newAchievements = [
     unlocked: false
   }
 ];
+// Function to handle victory conditions and unlock achievements
+function checkGameAchievements(gameName, mode, livesLost) {
+  // 1. Elemental Master Check
+  if (gameName === "Elemental Battles" && mode === "normal" && livesLost === 0) {
+    unlockAchievement("elemental_master", 10, "PTS", "Elemental Master");
+  }
+
+  // 2. Elemental God Check
+  if (gameName === "Elemental Battles" && mode === "hardcore" && livesLost === 0) {
+    unlockAchievement("elemental_god", 5, "HCP", "Elemental God");
+  }
+
+  // 3. Hardcore Slayer Check
+  if (mode === "hardcore") {
+    let hardcoreWins = (parseInt(localStorage.getItem("hardcoreWins")) || 0) + 1;
+    localStorage.setItem("hardcoreWins", hardcoreWins);
+
+    if (hardcoreWins >= 2) {
+      unlockAchievement("hardcore_slayer", 5, "HCP", "Hardcore Slayer");
+    }
+  }
+}
+
+// Toast notification and reward dispenser function
+function unlockAchievement(achievementId, rewardAmount, rewardType, achievementTitle) {
+  if (localStorage.getItem(`ach_${achievementId}`)) return; // Already unlocked
+
+  // Mark as unlocked
+  localStorage.setItem(`ach_${achievementId}`, "true");
+
+  // Grant rewards
+  if (rewardType === "PTS") {
+    let pts = parseInt(localStorage.getItem("userPTS")) || 0;
+    localStorage.setItem("userPTS", pts + rewardAmount);
+  } else if (rewardType === "HCP") {
+    let hcp = parseInt(localStorage.getItem("userHCP")) || 0;
+    localStorage.setItem("userHCP", hcp + rewardAmount);
+  }
+
+  // Display Toast Notification
+  showToast(`Achievement Unlocked: ${achievementTitle}! (+${rewardAmount} ${rewardType})`);
+}
