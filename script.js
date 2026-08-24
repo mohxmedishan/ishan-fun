@@ -221,35 +221,28 @@ let cachedUsername = "Player";
 
 // Dynamic Achievement State Controller
 function checkAchievementProgress() {
-  const buttonSmasherItem = document.getElementById("ach-button-smasher");
-  const hardcoreSurvivorItem = document.getElementById("ach-hardcore-survivor");
+  const achievements = [
+    ["ach-button-smasher", "ach_button_smasher"],
+    ["ach-hardcore-survivor", "ach_hardcore_survivor"],
+    ["ach-elemental-master", "ach_elemental_master"],
+    ["ach-hardcore-slayer", "ach_hardcore_slayer"],
+    ["ach-elemental-god", "ach_elemental_god"]
+  ];
 
-  const isSmasherDone = localStorage.getItem("ach_button_smasher") === "true";
-  const isHardcoreDone = localStorage.getItem("ach_hardcore_survivor") === "true";
+  achievements.forEach(([elementId, storageKey]) => {
+    const item = document.getElementById(elementId);
+    if (!item) return;
 
-  if (buttonSmasherItem) {
-    if (isSmasherDone) {
-      buttonSmasherItem.classList.add("completed");
-      buttonSmasherItem.querySelector(".ach-status").textContent = "COMPLETED";
-      buttonSmasherItem.querySelector(".ach-status").className = "ach-status status-completed";
-    } else {
-      buttonSmasherItem.classList.remove("completed");
-      buttonSmasherItem.querySelector(".ach-status").textContent = "LOCKED";
-      buttonSmasherItem.querySelector(".ach-status").className = "ach-status status-locked";
+    const done = localStorage.getItem(storageKey) === "true";
+    const status = item.querySelector(".ach-status");
+
+    item.classList.toggle("completed", done);
+
+    if (status) {
+      status.textContent = done ? "COMPLETED" : "LOCKED";
+      status.className = `ach-status ${done ? "status-completed" : "status-locked"}`;
     }
-  }
-
-  if (hardcoreSurvivorItem) {
-    if (isHardcoreDone) {
-      hardcoreSurvivorItem.classList.add("completed");
-      hardcoreSurvivorItem.querySelector(".ach-status").textContent = "COMPLETED";
-      hardcoreSurvivorItem.querySelector(".ach-status").className = "ach-status status-completed";
-    } else {
-      hardcoreSurvivorItem.classList.remove("completed");
-      hardcoreSurvivorItem.querySelector(".ach-status").textContent = "LOCKED";
-      hardcoreSurvivorItem.querySelector(".ach-status").className = "ach-status status-locked";
-    }
-  }
+  });
 }
 
 // Shared Background Music Controller
@@ -486,69 +479,4 @@ async function fetchLeaderboard() {
     console.error("Leaderboard fetch error:", err);
     leaderboardList.innerHTML = '<li class="loading-item">Failed to load leaderboard.</li>';
   }
-}
-const newAchievements = [
-  {
-    id: "elemental_master",
-    title: "Elemental Master",
-    description: "Beat Elemental Battles in Normal Mode without losing any lives.",
-    reward: { type: "PTS", amount: 10 },
-    unlocked: false
-  },
-  {
-    id: "hardcore_slayer",
-    title: "Hardcore Slayer",
-    description: "Beat 2 games on Hardcore Mode.",
-    reward: { type: "HCP", amount: 5 },
-    unlocked: false
-  },
-  {
-    id: "elemental_god",
-    title: "Elemental God",
-    description: "Beat Elemental Battles in Hardcore Mode without losing any lives.",
-    reward: { type: "HCP", amount: 5 },
-    unlocked: false
-  }
-];
-// Function to handle victory conditions and unlock achievements
-function checkGameAchievements(gameName, mode, livesLost) {
-  // 1. Elemental Master Check
-  if (gameName === "Elemental Battles" && mode === "normal" && livesLost === 0) {
-    unlockAchievement("elemental_master", 10, "PTS", "Elemental Master");
-  }
-
-  // 2. Elemental God Check
-  if (gameName === "Elemental Battles" && mode === "hardcore" && livesLost === 0) {
-    unlockAchievement("elemental_god", 5, "HCP", "Elemental God");
-  }
-
-  // 3. Hardcore Slayer Check
-  if (mode === "hardcore") {
-    let hardcoreWins = (parseInt(localStorage.getItem("hardcoreWins")) || 0) + 1;
-    localStorage.setItem("hardcoreWins", hardcoreWins);
-
-    if (hardcoreWins >= 2) {
-      unlockAchievement("hardcore_slayer", 5, "HCP", "Hardcore Slayer");
-    }
-  }
-}
-
-// Toast notification and reward dispenser function
-function unlockAchievement(achievementId, rewardAmount, rewardType, achievementTitle) {
-  if (localStorage.getItem(`ach_${achievementId}`)) return; // Already unlocked
-
-  // Mark as unlocked
-  localStorage.setItem(`ach_${achievementId}`, "true");
-
-  // Grant rewards
-  if (rewardType === "PTS") {
-    let pts = parseInt(localStorage.getItem("userPTS")) || 0;
-    localStorage.setItem("userPTS", pts + rewardAmount);
-  } else if (rewardType === "HCP") {
-    let hcp = parseInt(localStorage.getItem("userHCP")) || 0;
-    localStorage.setItem("userHCP", hcp + rewardAmount);
-  }
-
-  // Display Toast Notification
-  showToast(`Achievement Unlocked: ${achievementTitle}! (+${rewardAmount} ${rewardType})`);
 }
