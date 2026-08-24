@@ -135,6 +135,39 @@ const musicIcon = document.getElementById("music-icon");
 
 let cachedUsername = "Player";
 
+// Dynamic Achievement State Controller
+function checkAchievementProgress() {
+  const buttonSmasherItem = document.getElementById("ach-button-smasher");
+  const hardcoreSurvivorItem = document.getElementById("ach-hardcore-survivor");
+
+  const isSmasherDone = localStorage.getItem("ach_button_smasher") === "true";
+  const isHardcoreDone = localStorage.getItem("ach_hardcore_survivor") === "true";
+
+  if (buttonSmasherItem) {
+    if (isSmasherDone) {
+      buttonSmasherItem.classList.add("completed");
+      buttonSmasherItem.querySelector(".ach-status").textContent = "COMPLETED";
+      buttonSmasherItem.querySelector(".ach-status").className = "ach-status status-completed";
+    } else {
+      buttonSmasherItem.classList.remove("completed");
+      buttonSmasherItem.querySelector(".ach-status").textContent = "LOCKED";
+      buttonSmasherItem.querySelector(".ach-status").className = "ach-status status-locked";
+    }
+  }
+
+  if (hardcoreSurvivorItem) {
+    if (isHardcoreDone) {
+      hardcoreSurvivorItem.classList.add("completed");
+      hardcoreSurvivorItem.querySelector(".ach-status").textContent = "COMPLETED";
+      hardcoreSurvivorItem.querySelector(".ach-status").className = "ach-status status-completed";
+    } else {
+      hardcoreSurvivorItem.classList.remove("completed");
+      hardcoreSurvivorItem.querySelector(".ach-status").textContent = "LOCKED";
+      hardcoreSurvivorItem.querySelector(".ach-status").className = "ach-status status-locked";
+    }
+  }
+}
+
 // Background Music Controller
 if (bgMusic && musicFab) {
   bgMusic.volume = 0.2;
@@ -174,7 +207,10 @@ leaderboardBtn?.addEventListener("click", () => {
 });
 closeLbBtn?.addEventListener("click", () => lbModal.classList.remove("active"));
 
-achievementsBtn?.addEventListener("click", () => achModal.classList.add("active"));
+achievementsBtn?.addEventListener("click", () => {
+  checkAchievementProgress();
+  achModal.classList.add("active");
+});
 closeAchBtn?.addEventListener("click", () => achModal.classList.remove("active"));
 
 // SIGN UP
@@ -270,7 +306,7 @@ onAuthStateChanged(auth, async (user) => {
     if (logoutBtn) logoutBtn.style.display = "none";
 
     if (heroSubtitle) {
-      heroSubtitle.textContent = "Log in to save your points to the global leaderboard.";
+      heroSubtitle.textContent = "Log in to save your PTS to the global leaderboard.";
     }
   }
 });
@@ -278,7 +314,7 @@ onAuthStateChanged(auth, async (user) => {
 // FETCH LEADERBOARD
 async function fetchLeaderboard() {
   if (!leaderboardList) return;
-  leaderboardList.innerHTML = '<li class="loading-item">Loading leaderboard...</li>';
+  leaderboardList.innerHTML = '<li class="loading-item">Loading PTS...</li>';
   if (personalRankBar) personalRankBar.style.display = "none";
 
   try {
@@ -308,7 +344,7 @@ async function fetchLeaderboard() {
         <span class="rank">#${rank}</span>
         <span class="name">${data.username || "Anonymous"}</span>
         <div class="scores">
-          <span class="score-norm">${pts} pts</span>
+          <span class="score-norm">${pts} PTS</span>
           <span class="score-hc">${hcPts} HCP</span>
         </div>
       `;
@@ -332,7 +368,7 @@ async function fetchLeaderboard() {
 
       myRankEl.textContent = `#${currentUserRank}`;
       myNameEl.textContent = currentUserData.name;
-      myPtsEl.textContent = `${currentUserData.pts} pts`;
+      myPtsEl.textContent = `${currentUserData.pts} PTS`;
       myHcEl.textContent = `${currentUserData.hcPts} HCP`;
 
       const updateRankBarVisibility = () => {
