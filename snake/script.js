@@ -35,7 +35,7 @@ function resizeCanvas(){const c=configs[state.mode];canvas.width=c.cols*c.cell;c
 function randomCell(){const c=configs[state.mode];return{x:Math.floor(Math.random()*c.cols),y:Math.floor(Math.random()*c.rows)}}
 function same(a,b){return a.x===b.x&&a.y===b.y}
 function spawnGoldenApple(){
-  if(state.secretDimension||state.goldenSpawned)return false;
+  if(state.secretDimension||state.goldenSpawned||!state.goldenEligible)return false;
   const c=configs[state.mode];
   const occupied=new Set(state.snake.map(seg=>`${seg.x},${seg.y}`));
   if(state.apple)occupied.add(`${state.apple.x},${state.apple.y}`);
@@ -58,7 +58,7 @@ function spawnApple(){
   state.apple=free[Math.floor(Math.random()*free.length)];
   return true;
 }
-function updateUI(){appleEl.textContent=`${state.apples} / ${state.target}`;lengthEl.textContent=String(state.snake.length);const label=appleEl.parentElement?.querySelector("span");if(label)label.textContent="FRUIT";const sub=document.getElementById("target-label");if(sub)sub.textContent=state.secretDimension?"SECRET DIMENSION • 100 FRUIT":`${state.mode.toUpperCase()} • ${state.target} FRUIT`}
+function updateUI(){appleEl.textContent=`${state.apples} / ${state.target}`;lengthEl.textContent=String(state.snake.length);const label=appleEl.parentElement?.querySelector("span");if(label)label.textContent="FRUIT";const sub=document.getElementById("target-label");if(sub)sub.textContent=state.secretDimension?"SECRET DIMENSION • 50 FRUIT":`${state.mode.toUpperCase()} • ${state.target} FRUIT`}
 function skinColor(i){const s=state.skin;if(s==="rainbow"){return `hsl(${(i*32+Date.now()/9)%360},100%,${i===0?68:60}%)`}if(s==="gradient"){const colors=["#ff3d00","#ff8a00","#ffd000","#4ade80","#38bdf8","#2563eb"];return colors[Math.min(colors.length-1,Math.floor(i/3))]}return {white:"#ffffff",red:"#ef4444",green:"#22c55e",blue:"#3b82f6",yellow:"#facc15","phase-purple":"#a855f7"}[s]||"#fff"}
 function draw(){if(!canvas.width)return;const c=configs[state.mode];ctx.clearRect(0,0,canvas.width,canvas.height);ctx.fillStyle="#0d0d10";ctx.fillRect(0,0,canvas.width,canvas.height);
   ctx.strokeStyle="rgba(255,255,255,.045)";ctx.lineWidth=1;for(let x=0;x<=c.cols;x++){ctx.beginPath();ctx.moveTo(x*c.cell+.5,0);ctx.lineTo(x*c.cell+.5,canvas.height);ctx.stroke()}for(let y=0;y<=c.rows;y++){ctx.beginPath();ctx.moveTo(0,y*c.cell+.5);ctx.lineTo(canvas.width,y*c.cell+.5);ctx.stroke()}
@@ -125,7 +125,7 @@ function loop(now){
 function enterSecretDimension(){
   state.secretDimension=true;
   state.apples=0;
-  state.target=100;
+  state.target=50;
   state.goldenApple=null;
   state.apple=null;
   state.goldenEligible=false;
@@ -166,6 +166,8 @@ function step(){
     updateUI();
     if(state.apples>=state.target){end(true);return}
     if(!state.secretDimension && state.goldenEligible && !state.goldenSpawned)spawnGoldenApple();
+    // If the player chooses the normal fruit, the green apple disappears.
+    if(state.goldenApple)state.goldenApple=null;
     if(!spawnApple()){end(true);return}
   }else{
     state.snake.pop();
@@ -179,7 +181,7 @@ function completeOnce(key,id,title,desc,pts,hcp,hard){if(localStorage.getItem(ke
 function checkHardcoreSlayer(){const completed=["ach_hardcore_button","ach_hardcore_elemental","ach_hardcore_snake"].filter(k=>localStorage.getItem(k)==="true").length;if(completed>=2&&localStorage.getItem("ach_hardcore_slayer")!=="true")completeOnce("ach_hardcore_slayer","hardcore-slayer","Hardcore Slayer","Beat 2 games on Hardcore Mode.",0,5,true)}
 function finishAchievement(won){
   if(!won)return;
-  if(state.secretDimension){completeOnce("ach_void_serpent","void-serpent","Void Serpent","Enter the hidden dimension and collect 100 fruit. Unlocks the purple phase-shift snake that can pass through walls.",0,0,true);if(localStorage.getItem("ach_void_serpent_scp_awarded")!=="true"){localStorage.setItem("ach_void_serpent_scp_awarded","true");award(0,0,1)}}
+  if(state.secretDimension){completeOnce("ach_void_serpent","void-serpent","Void Serpent","Enter the hidden dimension and collect 50 fruit. Unlocks the purple phase-shift snake that can pass through walls.",0,0,true);if(localStorage.getItem("ach_void_serpent_scp_awarded")!=="true"){localStorage.setItem("ach_void_serpent_scp_awarded","true");award(0,0,1)}}
   else if(state.mode==="normal")completeOnce("ach_slither_king","slither-king","Slither King","Beat Snake on Normal Mode.",10,0,false);
   else if(state.mode==="hardcore")completeOnce("ach_king_cobra","king-cobra","King Cobra","Beat Snake on Hardcore Mode.",0,5,true);
   if(state.mode==="hardcore"){if(localStorage.getItem("ach_hardcore_survivor")!=="true")localStorage.setItem("ach_hardcore_survivor","true");if(localStorage.getItem("ach_hardcore_snake")!=="true"){localStorage.setItem("ach_hardcore_snake","true");checkHardcoreSlayer()}}
@@ -190,7 +192,7 @@ function end(won){
   won?winSfx():crashSfx();
   const c=configs[state.mode];
   const title=state.secretDimension?"DIMENSION CLEARED":(won?"VICTORY":"GAME OVER");
-  const sub=state.secretDimension?(won?"You conquered the hidden dimension and collected all 100 fruit.":`The snake crashed after ${state.apples} fruit.`):(won?`You ate ${state.target} fruit and grew to ${state.snake.length}.`:`The snake crashed after ${state.apples} fruit.`);
+  const sub=state.secretDimension?(won?"You conquered the hidden dimension and collected all 50 fruit.":`The snake crashed after ${state.apples} fruit.`):(won?`You ate ${state.target} fruit and grew to ${state.snake.length}.`:`The snake crashed after ${state.apples} fruit.`);
   document.getElementById("result-eyebrow").textContent=won?"VICTORY":"RUN ENDED";
   document.getElementById("result-title").textContent=title;
   document.getElementById("result-sub").textContent=sub;
