@@ -114,7 +114,7 @@ export const playSFX = {
 };
 
 // Global Floating Toast Generator
-export function triggerAchievementToast(title, description, isHardTier = false) {
+export function triggerAchievementToast(title, description, isHardTier = false, isSecretTier = false) {
   let container = document.getElementById("achievement-toast-container");
   if (!container) {
     container = document.createElement("div");
@@ -126,7 +126,7 @@ export function triggerAchievementToast(title, description, isHardTier = false) 
   playSFX.achievement();
 
   const toast = document.createElement("div");
-  toast.className = `achievement-toast ${isHardTier ? "hard-tier" : ""}`;
+  toast.className = `achievement-toast ${isHardTier ? "hard-tier" : ""} ${isSecretTier ? "secret-tier" : ""}`;
   toast.innerHTML = `
     <div class="toast-info">
       <span class="toast-title">${title}</span>
@@ -142,7 +142,7 @@ export function triggerAchievementToast(title, description, isHardTier = false) 
     const badge = toast.querySelector(".toast-badge");
     if (badge) {
       badge.textContent = "COMPLETED";
-      badge.className = `toast-badge completed-pop ${isHardTier ? "hard-tier-badge" : ""}`;
+      badge.className = `toast-badge completed-pop ${isSecretTier ? "secret-tier-badge" : (isHardTier ? "hard-tier-badge" : "")}`;
     }
   }, 600);
 
@@ -168,7 +168,7 @@ function handleExternalAchievement(payload) {
   const data = payload?.data || payload;
   if (!data?.nonce || handledAchievementEvents.has(data.nonce)) return;
   handledAchievementEvents.add(data.nonce);
-  triggerAchievementToast(data.title, data.description, Boolean(data.isHardTier));
+  triggerAchievementToast(data.title, data.description, Boolean(data.isHardTier), Boolean(data.isSecretTier));
   if (data.id === "button-smasher") localStorage.setItem("ach_button_smasher", "true");
   if (data.id === "hardcore-survivor") localStorage.setItem("ach_hardcore_survivor", "true");
   if (data.id === "elemental-master") localStorage.setItem("ach_elemental_master", "true");
@@ -248,7 +248,7 @@ function checkAchievementProgress() {
     item.classList.toggle("completed", done);
     if (item.id === "ach-void-serpent") {
       item.querySelector(".secret-mask")?.replaceChildren(document.createTextNode(done ? (item.dataset.secretTitle || "Void Serpent") : "???"));
-      const desc=item.querySelector(".ach-desc .secret-mask");
+      const desc=item.querySelector(".ach-desc.secret-mask");
       if(desc) desc.textContent=done ? "Enter the hidden dimension, collect 50 fruit, and unlock wall phasing." : "???";
       item.classList.toggle("secret-unlocked",done);
     }
@@ -323,6 +323,7 @@ document.getElementById("signup-btn")?.addEventListener("click", async () => {
       email: email,
       points: 0,
       hcPoints: 0,
+      scp: 0,
       createdAt: new Date()
     });
   } catch (err) {
@@ -357,6 +358,7 @@ document.getElementById("google-btn")?.addEventListener("click", async () => {
         email: res.user.email,
         points: 0,
         hcPoints: 0,
+        scp: 0,
         createdAt: new Date()
       });
     }
@@ -460,6 +462,7 @@ async function fetchLeaderboard() {
         currentUserData = { 
           pts: myData.points || 0, 
           hcPts: myData.hcPoints || 0, 
+          scp: myData.scp || 0,
           name: myData.username || cachedUsername 
         };
         currentUserRank = "50+";
