@@ -249,12 +249,12 @@ function checkAchievementProgress() {
     if (item.id === "ach-void-serpent") {
       item.querySelector(".secret-mask")?.replaceChildren(document.createTextNode(done ? (item.dataset.secretTitle || "Void Serpent") : "???"));
       const desc=item.querySelector(".ach-desc .secret-mask");
-      if(desc) desc.textContent=done ? "Enter the hidden dimension, collect 100 fruit, and unlock wall phasing." : "???";
+      if(desc) desc.textContent=done ? "Enter the hidden dimension, collect 50 fruit, and unlock wall phasing." : "???";
       item.classList.toggle("secret-unlocked",done);
     }
     if (status) {
       status.textContent = done ? "COMPLETED" : "LOCKED";
-      status.className = `ach-status ${done ? "status-completed" : "status-locked"}`;
+      status.className = `ach-status ${done ? "status-completed" : "status-locked"} ${done && item.classList.contains("hard-tier") ? "status-completed-hard" : ""} ${done && item.classList.contains("secret-ach") ? "status-completed-secret" : ""}`;
     }
   });
 }
