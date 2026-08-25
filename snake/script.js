@@ -35,7 +35,7 @@ function resizeCanvas(){const c=configs[state.mode];canvas.width=c.cols*c.cell;c
 function randomCell(){const c=configs[state.mode];return{x:Math.floor(Math.random()*c.cols),y:Math.floor(Math.random()*c.rows)}}
 function same(a,b){return a.x===b.x&&a.y===b.y}
 function spawnGoldenApple(){
-  if(state.mode!=="hardcore"||state.secretDimension||state.goldenSpawned||!state.goldenEligible)return false;
+  if(state.secretDimension||state.goldenSpawned)return false;
   const c=configs[state.mode];
   const occupied=new Set(state.snake.map(seg=>`${seg.x},${seg.y}`));
   if(state.apple)occupied.add(`${state.apple.x},${state.apple.y}`);
@@ -91,7 +91,7 @@ function start(){
   state.apples=0;
   state.target=c.target;
   state.secretDimension=false;
-  state.goldenEligible=state.mode==="hardcore" && Math.random()<0.38;
+  state.goldenEligible=true;
   state.goldenSpawned=false;
   state.running=true;
   state.gameOver=false;
@@ -165,7 +165,7 @@ function step(){
     eatSfx();
     updateUI();
     if(state.apples>=state.target){end(true);return}
-    if(!state.secretDimension && state.mode==="hardcore" && state.goldenEligible && !state.goldenSpawned && Math.random()<0.16)spawnGoldenApple();
+    if(!state.secretDimension && state.goldenEligible && !state.goldenSpawned)spawnGoldenApple();
     if(!spawnApple()){end(true);return}
   }else{
     state.snake.pop();
