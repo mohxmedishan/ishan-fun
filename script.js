@@ -440,12 +440,13 @@ async function fetchLeaderboard() {
       li.className = `leaderboard-item ${isMe ? "current-user-item" : ""}`;
       li.innerHTML = `
         <span class="rank">#${rank}</span>
-        <span class="name">${data.username || "Anonymous"}</span>
+        <span class="name"></span>
         <div class="scores">
           <span class="score-norm">${pts} PTS</span>
-          <span class="score-hc">${hcPts} HCP</span>${scp>1?`<span class="score-scp">${scp} SCP</span>`:""}
+          <span class="score-hc">${hcPts} HCP</span>${scp>0?`<span class="score-scp">${scp} SCP</span>`:""}
         </div>
       `;
+      li.querySelector(".name").textContent = data.username || "Anonymous";
 
       if (isMe) myUserElement = li;
       leaderboardList.appendChild(li);
@@ -468,7 +469,7 @@ async function fetchLeaderboard() {
       myNameEl.textContent = currentUserData.name;
       myPtsEl.textContent = `${currentUserData.pts} PTS`;
       myHcEl.textContent = `${currentUserData.hcPts} HCP`;
-      const myScpEl=document.getElementById("my-scp");if(myScpEl){myScpEl.textContent=currentUserData.scp>1?`${currentUserData.scp} SCP`:"";myScpEl.style.display=currentUserData.scp>1?"inline":"none";}
+      const myScpEl=document.getElementById("my-scp");if(myScpEl){myScpEl.textContent=currentUserData.scp>0?`${currentUserData.scp} SCP`:"";myScpEl.style.display=currentUserData.scp>0?"inline":"none";}
 
       const updateRankBarVisibility = () => {
         if (!myUserElement) {
