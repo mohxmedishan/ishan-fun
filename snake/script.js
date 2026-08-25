@@ -50,6 +50,7 @@ function spawnGoldenApple(){
 function spawnApple(){
   const c=configs[state.mode];
   const occupied=new Set(state.snake.map(seg=>`${seg.x},${seg.y}`));
+  if(state.goldenApple)occupied.add(`${state.goldenApple.x},${state.goldenApple.y}`);
   const free=[];
   for(let y=0;y<c.rows;y++) for(let x=0;x<c.cols;x++){
     if(!occupied.has(`${x},${y}`)) free.push({x,y});
@@ -165,9 +166,14 @@ function step(){
     eatSfx();
     updateUI();
     if(state.apples>=state.target){end(true);return}
-    if(!state.secretDimension && state.goldenEligible && !state.goldenSpawned)spawnGoldenApple();
-    // If the player chooses the normal fruit, the green apple disappears.
-    if(state.goldenApple)state.goldenApple=null;
+    // The first normal fruit guarantees the green apple will appear.
+    // If a green apple is already on the board and the player eats the
+    // normal fruit instead, remove the green apple and do not respawn it.
+    if(state.goldenApple){
+      state.goldenApple=null;
+    }else if(!state.secretDimension && state.goldenEligible && !state.goldenSpawned){
+      spawnGoldenApple();
+    }
     if(!spawnApple()){end(true);return}
   }else{
     state.snake.pop();
