@@ -42,3 +42,5 @@ html,body{min-height:100%;overflow-x:hidden;overflow-y:auto}.game-container{min-
 @keyframes rainbowSpin{to{filter:hue-rotate(360deg)}}
 @media(max-width:700px){.picker-grid.skins{grid-template-columns:repeat(4,1fr)}}
 @media(max-width:480px){.picker-grid.skins{grid-template-columns:repeat(3,1fr)}}
+
+.achievement-toast.secret-tier{box-shadow:0 12px 32px rgba(0,0,0,.6),0 0 20px rgba(168,85,247,.18)}.toast-badge.secret-tier-badge{background:#a855f7;color:#fff;box-shadow:0 0 16px rgba(168,85,247,.65)}
