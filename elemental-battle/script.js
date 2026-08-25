@@ -159,8 +159,8 @@ function chooseBotMove() {
   const predicted = predictPlayerMove();
 
   if (state.mode === "hardcore") {
-    // 90% correct prediction, 10% wrong prediction.
-    if (Math.random() < 0.90) {
+    // Very tough, but still beatable: 70% correct prediction, 30% wrong/random.
+    if (Math.random() < 0.70) {
       return counterFor(predicted);
     }
     return randomElement();
@@ -170,7 +170,7 @@ function chooseBotMove() {
   // of you as more rounds are played, instead of hard-countering right away.
   const roundsPlayed = state.history.length;
   const learn = Math.min(roundsPlayed / 6, 1); // ramps up over ~6 rounds
-  const counterChance = 0.12 + learn * 0.28; // 12% early game -> 40% once "learned"
+  const counterChance = 0.06 + learn * 0.14; // 6% early game -> 20% once "learned"
 
   if (predicted && Math.random() < counterChance) {
     return counterFor(predicted);
@@ -402,14 +402,14 @@ function showAchievementToast({ title, description, hard = false }) {
 
 // Listen for achievement toasts from the hub or another game tab.
 try {
-  const channel = new BroadcastChannel("ishan-achievements");
+  const channel = new BroadcastChannel("ishan-fun-achievements");
   channel.addEventListener("message", event => {
     if (event.data) showAchievementToast(event.data);
   });
 } catch {}
 
 window.addEventListener("storage", event => {
-  if (event.key !== "ishan-achievement-event" || !event.newValue) return;
+  if (event.key !== "ishan_fun_achievement_event" || !event.newValue) return;
 
   try {
     const data = JSON.parse(event.newValue);
@@ -506,8 +506,8 @@ async function finishBattle(playerWon) {
 
   // Hardcore Survivor is earned by actually winning an Elemental Battle on Hardcore.
   if (playerWon && hardcore) {
-    if (localStorage.getItem("achievement-hardcore-survivor") !== "true") {
-      localStorage.setItem("achievement-hardcore-survivor", "true");
+    if (localStorage.getItem("ach_hardcore_survivor") !== "true") {
+      localStorage.setItem("ach_hardcore_survivor", "true");
 
       broadcastAchievement(
         "hardcore-survivor",
